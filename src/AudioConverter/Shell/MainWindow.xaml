@@ -46,8 +46,8 @@
     <sysshell:WindowChrome.WindowChrome>
         <sysshell:WindowChrome CaptionHeight="38"
                                ResizeBorderThickness="6"
-                               GlassFrameThickness="0"
-                               CornerRadius="0"
+                               GlassFrameThickness="1"
+                               CornerRadius="12"
                                UseAeroCaptionButtons="False"/>
     </sysshell:WindowChrome.WindowChrome>
 
@@ -55,7 +55,7 @@
         <!-- 自定义标题栏 -->
         <Border DockPanel.Dock="Top"
                 Height="38"
-                Background="{StaticResource Brush.Surface}"
+                Background="{StaticResource Brush.Sidebar}"
                 BorderBrush="{StaticResource Brush.Divider}"
                 BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="OnCaptionMouseDown">
@@ -81,16 +81,21 @@
                                    VerticalAlignment="Center"
                                    FontFamily="Segoe UI Symbol"/>
                     </Border>
-                    <TextBlock Text="天融 - SkyFusion"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               Margin="8,0,0,0"/>
-                    <TextBlock Text="v1.0.3"
-                               FontSize="11"
-                               Foreground="{StaticResource Brush.TextMuted}"
-                               VerticalAlignment="Center"
-                               Margin="8,1,0,0"/>
+                    <Menu Background="Transparent"
+                          BorderThickness="0"
+                          VerticalAlignment="Center"
+                          Margin="6,0,0,0">
+                        <MenuItem Header="文件" FontSize="12">
+                            <MenuItem Header="打开音频文件…" Click="OnOpenAudioFileClick"/>
+                            <MenuItem Header="打开办公文件…" IsEnabled="False"/>
+                            <Separator/>
+                            <MenuItem Header="退出" Click="OnCloseClick"/>
+                        </MenuItem>
+                        <MenuItem Header="帮助" FontSize="12">
+                            <MenuItem Header="关于 SkyFusion" Click="OnAboutClick"/>
+                            <MenuItem Header="GitHub 仓库" Click="OnGitHubClick"/>
+                        </MenuItem>
+                    </Menu>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2"
@@ -148,29 +153,11 @@
                     BorderBrush="{StaticResource Brush.Border}"
                     BorderThickness="0,0,1,0">
                 <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Margin="14,14,14,8">
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="30" Height="30"
-                                    Background="{StaticResource Brush.AccentSoft}"
-                                    CornerRadius="8"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="&#x266A;"
-                                           FontSize="15"
-                                           Foreground="{StaticResource Brush.Accent}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           FontFamily="Segoe UI Symbol"/>
-                            </Border>
-                            <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="天融 SkyFusion"
-                                           FontSize="13"
-                                           FontWeight="SemiBold"/>
-                                <TextBlock Text="离线格式转换工具"
-                                           FontSize="10"
-                                           Foreground="{StaticResource Brush.TextMuted}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="导航"
+                               FontSize="11"
+                               Foreground="{StaticResource Brush.TextMuted}"
+                               Margin="24,22,16,4"/>
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,8">
                         <Border Height="1"

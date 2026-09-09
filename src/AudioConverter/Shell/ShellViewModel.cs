@@ -138,5 +138,15 @@ namespace AudioConverter.Shell
                 conversion.AddPaths(files);
             }
         }
+
+        public void NavigateTo(AppPage page)
+        {
+            var item = TopItems.FirstOrDefault(i => i.Page == page) ??
+                       BottomItems.FirstOrDefault(i => i.Page == page);
+            if (item != null)
+            {
+                Navigate(item);
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@
 
     <!-- ===== Colors ===== -->
     <Color x:Key="Color.WindowBg">#FFFFFF</Color>
-    <Color x:Key="Color.Sidebar">#F7F7F8</Color>
+    <Color x:Key="Color.Sidebar">#F7F8FA</Color>
     <Color x:Key="Color.Surface">#FFFFFF</Color>
     <Color x:Key="Color.SurfaceAlt">#FAFAFA</Color>
     <Color x:Key="Color.Hover">#F3F4F6</Color>

@@ -2,6 +2,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using Microsoft.Win32;
+using AudioConverter.Services;
 using System.Windows.Controls;
 
 namespace AudioConverter.Shell
@@ -91,6 +93,31 @@ namespace AudioConverter.Shell
                 MaxWidth = double.PositiveInfinity;
                 MaxHeight = double.PositiveInfinity;
             }
+        }
+
+        private void OnOpenAudioFileClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "打开音频或视频文件",
+                Multiselect = true,
+                Filter = "支持的媒体文件 (*.mp3;*.wav;*.flac;*.mp4;*.mkv)|*.mp3;*.wav;*.flac;*.mp4;*.mkv|所有文件 (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog(this) == true)
+            {
+                _shell?.OpenMediaFiles(dialog.FileNames);
+            }
+        }
+
+        private void OnAboutClick(object sender, RoutedEventArgs e)
+        {
+            _shell?.NavigateTo(AppPage.About);
+        }
+
+        private void OnGitHubClick(object sender, RoutedEventArgs e)
+        {
+            ToastService.Instance.Show("GitHub 仓库地址将在项目上架后填写。");
         }
     }
 }
