@@ -17,8 +17,8 @@
         <Geometry x:Key="Geo.Close">M4,4 L12,12 M12,4 L4,12</Geometry>
 
         <Style x:Key="TitleBarButton" TargetType="Button">
-            <Setter Property="Width" Value="46"/>
-            <Setter Property="Height" Value="38"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="36"/>
             <Setter Property="Foreground" Value="{StaticResource Brush.TextSecondary}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -40,6 +40,12 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
         </Style>
     </Window.Resources>
 
@@ -106,10 +112,10 @@
                             ToolTip="最小化">
                         <Path Data="{StaticResource Geo.Min}"
                               Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="1.4"
+                              StrokeThickness="1.1"
                               StrokeStartLineCap="Round"
-                              Width="16"
-                              Height="14"
+                              Width="11"
+                              Height="10"
                               Stretch="Uniform"/>
                     </Button>
                     <Button x:Name="MaxButton"
@@ -119,9 +125,9 @@
                             ToolTip="最大化 / 还原">
                         <Path Data="{StaticResource Geo.Max}"
                               Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="1.4"
-                              Width="14"
-                              Height="14"
+                              StrokeThickness="1.1"
+                              Width="11"
+                              Height="10"
                               Stretch="Uniform"/>
                     </Button>
                     <Button x:Name="CloseButton"
@@ -131,10 +137,10 @@
                             ToolTip="关闭">
                         <Path Data="{StaticResource Geo.Close}"
                               Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeThickness="1.4"
+                              StrokeThickness="1.1"
                               StrokeStartLineCap="Round"
-                              Width="14"
-                              Height="14"
+                              Width="11"
+                              Height="10"
                               Stretch="Uniform"/>
                     </Button>
                 </StackPanel>
