@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="22"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Viewbox Width="16" Height="16"
+            <Viewbox Width="19" Height="19"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Center">
                 <Path x:Name="NavIcon"
@@ -43,7 +43,7 @@
             </Viewbox>
             <TextBlock Grid.Column="1"
                        Text="{Binding DisplayName}"
-                       FontSize="13"
+                       FontSize="15"
                        VerticalAlignment="Center"
                        Margin="8,0,0,0"/>
         </Grid>
