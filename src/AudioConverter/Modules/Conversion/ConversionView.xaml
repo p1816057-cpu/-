@@ -94,6 +94,20 @@
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
+
+        <Style x:Key="DropOverlayButton" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="20,16,20,20">
@@ -136,40 +150,53 @@
                             Background="#FAFAFA"
                             BorderBrush="{StaticResource Brush.BorderStrong}"
                             BorderThickness="1.5"
-                            CornerRadius="12">
-                        <StackPanel HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <Border Width="64" Height="64"
-                                    Background="{StaticResource Brush.AccentSoft}"
-                                    CornerRadius="32"
-                                    HorizontalAlignment="Center">
-                                <Viewbox Width="30" Height="30">
-                                    <Path Data="{StaticResource UploadArrow}"
-                                          Stroke="{StaticResource Brush.Accent}"
-                                          StrokeThickness="2"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          Stretch="Uniform"/>
-                                </Viewbox>
-                            </Border>
+                            CornerRadius="12"
+                            Cursor="Hand">
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsHitTestVisible="False">
+                                <Border Width="64" Height="64"
+                                        Background="{StaticResource Brush.AccentSoft}"
+                                        CornerRadius="32"
+                                        HorizontalAlignment="Center">
+                                    <Viewbox Width="30" Height="30">
+                                        <Path Data="{StaticResource UploadArrow}"
+                                              Stroke="{StaticResource Brush.Accent}"
+                                              StrokeThickness="2"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              Stretch="Uniform"/>
+                                    </Viewbox>
+                                </Border>
 
-                            <TextBlock Text="将文件拖到这里"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,12,0,0"/>
-                            <TextBlock Text="支持 MP3 / WAV / FLAC / MP4 / MKV；拖入视频将自动提取音轨"
-                                       Style="{StaticResource CaptionText}"
-                                       HorizontalAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       Margin="24,6,24,0"/>
+                                <TextBlock Text="将文件拖到这里，或点击此区域添加"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <TextBlock Text="支持 MP3 / WAV / FLAC / MP4 / MKV；拖入视频将自动提取音轨"
+                                           Style="{StaticResource CaptionText}"
+                                           HorizontalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           Margin="24,6,24,0"/>
+                                <Border Background="{StaticResource Brush.Surface}"
+                                        BorderBrush="{StaticResource Brush.BorderStrong}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="14,7"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,14,0,0">
+                                    <TextBlock Text="点击添加文件"
+                                               FontSize="13"
+                                               Foreground="{StaticResource Brush.TextSecondary}"/>
+                                </Border>
+                            </StackPanel>
 
-                            <Button Content="添加文件"
-                                    Style="{StaticResource Button.Secondary}"
-                                    Command="{Binding AddFilesCommand}"
-                                    HorizontalAlignment="Center"
-                                    Margin="0,14,0,0"/>
-                        </StackPanel>
+                            <Button Style="{StaticResource DropOverlayButton}"
+                                    AutomationProperties.Name="添加文件"
+                                    Command="{Binding AddFilesCommand}"/>
+                        </Grid>
                     </Border>
                 </Border>
 
