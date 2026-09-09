@@ -7,6 +7,7 @@ using AudioConverter.Modules;
 using AudioConverter.Modules.About;
 using AudioConverter.Modules.Conversion;
 using AudioConverter.Modules.History;
+using AudioConverter.Modules.ImageCompression;
 using AudioConverter.Modules.Office;
 using AudioConverter.Modules.Settings;
 using AudioConverter.Services;
@@ -27,6 +28,7 @@ namespace AudioConverter.Shell
             TopItems = new ObservableCollection<NavigationItem>
             {
                 new NavigationItem(AppPage.Conversion, "音频转换", "Convert"),
+                new NavigationItem(AppPage.ImageCompression, "图片压缩", "Image"),
                 new NavigationItem(AppPage.Office, "办公转换", "Office"),
                 new NavigationItem(AppPage.History, "历史", "History")
             };
@@ -90,6 +92,9 @@ namespace AudioConverter.Shell
                     case AppPage.Conversion:
                         page = new ConversionViewModel(_services);
                         break;
+                    case AppPage.ImageCompression:
+                        page = new ImageCompressionViewModel(_services);
+                        break;
                     case AppPage.Office:
                         page = new OfficeViewModel();
                         break;
@@ -132,7 +137,25 @@ namespace AudioConverter.Shell
                 return;
             }
 
-            Navigate(TopItems[0]);
+            bool imagesOnly = files.All(f =>
+            {
+                string ext = System.IO.Path.GetExtension(f) ?? "";
+                string[] imageExts = { ".jpg", ".jpeg", ".png", ".webp", ".bmp" };
+                return imageExts.Contains(ext.ToLowerInvariant());
+            });
+
+            if (imagesOnly)
+            {
+                Navigate(TopItems.First(i => i.Page == AppPage.ImageCompression));
+                if (CurrentViewModel is Modules.ImageCompression.ImageCompressionViewModel imageCompression)
+                {
+                    imageCompression.AddPaths(files);
+                }
+
+                return;
+            }
+
+            Navigate(TopItems.First(i => i.Page == AppPage.Conversion));
             if (CurrentViewModel is ConversionViewModel conversion)
             {
                 conversion.AddPaths(files);

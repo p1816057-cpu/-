@@ -20,6 +20,7 @@ namespace AudioConverter.Services
             Ffmpeg = new FfmpegLocator(Settings.Current);
             TaskManager = new ConversionTaskManager(Ffmpeg);
             ProbeRunner = new FfprobeRunner();
+            ImageRunner = new ImageFfmpegRunner();
 
             Directory.CreateDirectory(Settings.Current.LogDirectory);
             Directory.CreateDirectory(Settings.Current.TempDirectory);
@@ -36,5 +37,7 @@ namespace AudioConverter.Services
         public ConversionTaskManager TaskManager { get; }
 
         public FfprobeRunner ProbeRunner { get; }
+
+        public ImageFfmpegRunner ImageRunner { get; }
     }
 }

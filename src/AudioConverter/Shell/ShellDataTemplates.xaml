@@ -4,6 +4,7 @@
                     xmlns:about="clr-namespace:AudioConverter.Modules.About"
                     xmlns:conv="clr-namespace:AudioConverter.Modules.Conversion"
                     xmlns:hist="clr-namespace:AudioConverter.Modules.History"
+                    xmlns:img="clr-namespace:AudioConverter.Modules.ImageCompression"
                     xmlns:office="clr-namespace:AudioConverter.Modules.Office"
                     xmlns:set="clr-namespace:AudioConverter.Modules.Settings">
 
@@ -12,6 +13,9 @@
     </DataTemplate>
     <DataTemplate DataType="{x:Type hist:HistoryViewModel}">
         <hist:HistoryView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type img:ImageCompressionViewModel}">
+        <img:ImageCompressionView/>
     </DataTemplate>
     <DataTemplate DataType="{x:Type office:OfficeViewModel}">
         <office:OfficeView/>
@@ -59,6 +63,9 @@
             </DataTrigger>
             <DataTrigger Binding="{Binding IconKey}" Value="Office">
                 <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.Office}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IconKey}" Value="Image">
+                <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.Image}"/>
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>

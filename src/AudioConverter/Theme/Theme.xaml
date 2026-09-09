@@ -69,6 +69,7 @@
     <Geometry x:Key="Geo.Settings">M2.2,4 L13.8,4 M2.2,8 L13.8,8 M2.2,12 L13.8,12</Geometry>
     <Geometry x:Key="Geo.About">M8,2.5 A5.5,5.5 0 1 0 8.01,13.5 A5.5,5.5 0 1 0 8,2.5 M8,7.5 L8,11.5 M8,5.1 L8,5.3</Geometry>
     <Geometry x:Key="Geo.Office">M4.5,1.5 L10,1.5 L13.5,5 L13.5,14.5 L4.5,14.5 Z M10,1.5 L10,5 L13.5,5 M7,8.5 L11.5,8.5 M7,11 L11.5,11</Geometry>
+    <Geometry x:Key="Geo.Image">M2,3 L14,3 L14,13 L2,13 Z M2.5,10 L6,6.5 L9,9.5 L11,7 L13.5,10 M5,6 A1.5,1.5 0 1 1 5.01,6</Geometry>
 
     <theme:StatusToBrushConverter x:Key="StatusToBrush"/>
     <theme:StatusToForegroundConverter x:Key="StatusToForeground"/>
@@ -79,6 +80,7 @@
     <theme:BytesToSizeConverter x:Key="BytesToSize"/>
     <theme:FileFormatToBrushConverter x:Key="FormatToBrush"/>
     <theme:FileFormatToForegroundConverter x:Key="FormatToForeground"/>
+    <theme:PathToImageSourceConverter x:Key="PathToImage"/>
     <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
     <!-- ===== Typography ===== -->

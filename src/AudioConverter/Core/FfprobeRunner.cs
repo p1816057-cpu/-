@@ -26,7 +26,7 @@ namespace AudioConverter.Core
                     "-v error " +
                     "-of default=noprint_wrappers=1 " +
                     "-show_entries format=duration:format=size:format=format_name " +
-                    "-show_entries stream=codec_type " +
+                    "-show_entries stream=codec_type,width,height " +
                     CommandLine.Quote(filePath),
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -111,6 +111,20 @@ namespace AudioConverter.Core
                             else if (string.Equals(value, "video", StringComparison.OrdinalIgnoreCase))
                             {
                                 info.HasVideo = true;
+                            }
+
+                            break;
+                        case "width":
+                            if (int.TryParse(value, out int w))
+                            {
+                                info.Width = w;
+                            }
+
+                            break;
+                        case "height":
+                            if (int.TryParse(value, out int h))
+                            {
+                                info.Height = h;
                             }
 
                             break;

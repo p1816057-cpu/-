@@ -13,7 +13,7 @@ namespace AudioConverter.Modules.About
             _services = services;
             Title = "关于";
             FfmpegVersion = services.Ffmpeg.GetFfmpegVersion();
-            AppVersion = "Version 1.0.3";
+            AppVersion = "Version 1.1.0";
             SloganChinese = "天融万物，格式无界";
             SloganEnglish = "Fuse Anything, Convert Anything";
             CompatibilityText = AudioConverter.Common.WindowsCompatibility.CompatibilityText;
