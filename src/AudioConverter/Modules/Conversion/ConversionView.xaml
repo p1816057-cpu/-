@@ -228,6 +228,8 @@
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding SummaryText}"
                                            Style="{StaticResource CaptionText}"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
                                            VerticalAlignment="Center"
                                            Margin="10,0,0,0"/>
                                 <Button Grid.Column="2"
@@ -310,13 +312,16 @@
             </Grid>
 
             <!-- ============ 右列：转换控制 + 格式参数 + 当前任务 ============ -->
-            <Grid Grid.Column="2">
+            <ScrollViewer Grid.Column="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="10"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- 转换控制板块 -->
@@ -471,6 +476,7 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>

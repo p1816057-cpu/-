@@ -5,7 +5,7 @@
         Title="天融 - SkyFusion"
         Width="1180"
         Height="720"
-        MinWidth="1000"
+        MinWidth="820"
         MinHeight="660"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
@@ -168,15 +168,60 @@
                                                       Opacity="0.10"/>
                                 </Border.Effect>
                                 <StackPanel>
-                                    <Button Content="打开音频文件…"
+                                    <Button x:Name="ImportMenuButton"
                                             Style="{StaticResource MenuRowButton}"
-                                            Click="OnOpenAudioFileClick"/>
-                                    <Button Content="打开办公文件…"
-                                            Style="{StaticResource MenuRowButton}"
-                                            IsEnabled="False"/>
-                                    <Button Content="退出"
+                                            Click="OnImportMenuButtonClick"
+                                            MouseEnter="OnImportMenuMouseEnter"
+                                            MouseLeave="OnImportMenuMouseLeave"
+                                            AutomationProperties.Name="导入">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="导入" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="›"
+                                                       FontSize="14"
+                                                       Foreground="{StaticResource Brush.TextMuted}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                    <Button Content="关闭软件"
                                             Style="{StaticResource MenuRowButton}"
                                             Click="OnCloseClick"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                        <Popup x:Name="ImportSubPopup"
+                               Placement="Right"
+                               PlacementTarget="{Binding ElementName=ImportMenuButton}"
+                               AllowsTransparency="True"
+                               StaysOpen="True"
+                               PopupAnimation="Fade">
+                            <Border x:Name="ImportSubCard"
+                                    Style="{StaticResource MenuCard}"
+                                    MinWidth="190"
+                                    Margin="4,0,0,0"
+                                    MouseEnter="OnImportSubMenuMouseEnter"
+                                    MouseLeave="OnImportSubMenuMouseLeave"
+                                    sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black"
+                                                      BlurRadius="16"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.10"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <Button Content="音频 / 视频"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnOpenAudioFileClick"/>
+                                    <Button Content="图片"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnOpenImageFileClick"/>
+                                    <Button Content="Word / Excel 等"
+                                            Style="{StaticResource MenuRowButton}"
+                                            IsEnabled="False"/>
                                 </StackPanel>
                             </Border>
                         </Popup>
@@ -205,12 +250,29 @@
                                                       Opacity="0.10"/>
                                 </Border.Effect>
                                 <StackPanel>
-                                    <Button Content="关于 SkyFusion"
+                                    <Button Content="文档"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnDocsClick"/>
+                                    <Button Style="{StaticResource MenuRowButton}"
+                                            Click="OnCurrentVersionClick">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="当前版本" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="v1.1.0"
+                                                       Foreground="{StaticResource Brush.TextMuted}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                    <Button Content="关于 天融 - SkyFusion"
                                             Style="{StaticResource MenuRowButton}"
                                             Click="OnAboutClick"/>
-                                    <Button Content="GitHub 仓库"
+                                    <Button Content="遇到问题了？导出当前日志"
                                             Style="{StaticResource MenuRowButton}"
-                                            Click="OnGitHubClick"/>
+                                            Click="OnExportLogsClick"/>
                                 </StackPanel>
                             </Border>
                         </Popup>
@@ -263,7 +325,7 @@
         <!-- 主体：Sidebar + Workspace -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="226"/>
+                <ColumnDefinition x:Name="SidebarColumn" Width="226"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -276,7 +338,8 @@
                                Text="导航"
                                FontSize="13"
                                Foreground="{StaticResource Brush.TextMuted}"
-                               Margin="24,22,16,4"/>
+                               Margin="24,22,16,4"
+                               Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BoolToVis}}"/>
 
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,8">
                         <Border Height="1"

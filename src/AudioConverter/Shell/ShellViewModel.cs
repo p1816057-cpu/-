@@ -21,13 +21,14 @@ namespace AudioConverter.Shell
         private ViewModelBase _currentViewModel;
         private NavigationItem _selectedTop;
         private NavigationItem _selectedBottom;
+        private bool _isSidebarExpanded = true;
 
         public ShellViewModel(AppServices services)
         {
             _services = services;
             TopItems = new ObservableCollection<NavigationItem>
             {
-                new NavigationItem(AppPage.Conversion, "音频转换", "Convert"),
+                new NavigationItem(AppPage.Conversion, "音频转换", "Music"),
                 new NavigationItem(AppPage.ImageCompression, "图片压缩", "Image"),
                 new NavigationItem(AppPage.Office, "办公转换", "Office"),
                 new NavigationItem(AppPage.History, "历史", "History")
@@ -76,6 +77,17 @@ namespace AudioConverter.Shell
         {
             get { return _currentViewModel; }
             private set { SetProperty(ref _currentViewModel, value); }
+        }
+
+        public bool IsSidebarExpanded
+        {
+            get { return _isSidebarExpanded; }
+            set { SetProperty(ref _isSidebarExpanded, value); }
+        }
+
+        public AppServices Services
+        {
+            get { return _services; }
         }
 
         private void Navigate(NavigationItem item)

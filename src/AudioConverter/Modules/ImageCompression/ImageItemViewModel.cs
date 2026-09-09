@@ -13,6 +13,8 @@ namespace AudioConverter.Modules.ImageCompression
         private long _previewSizeBytes;
         private string _previewMessage;
         private bool _isPreviewing;
+        private int _originalWidth;
+        private int _originalHeight;
 
         public ImageItemViewModel(string filePath)
         {
@@ -38,6 +40,16 @@ namespace AudioConverter.Modules.ImageCompression
         public string SizeText { get; }
 
         public string DimensionsText { get; private set; }
+
+        public int OriginalWidth
+        {
+            get { return _originalWidth; }
+        }
+
+        public int OriginalHeight
+        {
+            get { return _originalHeight; }
+        }
 
         public bool IsChecked
         {
@@ -139,6 +151,8 @@ namespace AudioConverter.Modules.ImageCompression
 
         public void SetDimensions(int width, int height)
         {
+            _originalWidth = width;
+            _originalHeight = height;
             if (width > 0 && height > 0)
             {
                 DimensionsText = width + " × " + height;

@@ -19,6 +19,11 @@ namespace AudioConverter.Services
                 Current.OutputDirectory = Path.Combine(music, "AudioConverter");
             }
 
+            if (string.IsNullOrWhiteSpace(Current.ImageOutputDirectory))
+            {
+                Current.ImageOutputDirectory = Current.OutputDirectory;
+            }
+
             if (string.IsNullOrWhiteSpace(Current.LogDirectory))
             {
                 Current.LogDirectory = Path.Combine(storageRoot, "logs");

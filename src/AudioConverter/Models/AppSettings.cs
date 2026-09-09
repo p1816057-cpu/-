@@ -9,7 +9,13 @@ namespace AudioConverter.Models
         public OutputFormat DefaultOutputFormat { get; set; } = OutputFormat.Mp3;
 
         [DataMember]
+        public ImageOutputFormat DefaultImageFormat { get; set; } = ImageOutputFormat.Webp;
+
+        [DataMember]
         public string OutputDirectory { get; set; }
+
+        [DataMember]
+        public string ImageOutputDirectory { get; set; }
 
         [DataMember]
         public ConflictPolicy ConflictPolicy { get; set; } = ConflictPolicy.Rename;

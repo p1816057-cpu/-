@@ -90,3 +90,10 @@ src/AudioConverter/bin/Release/net48/ffmpeg/bin/ffprobe.exe
 
 - 设置：`%APPDATA%\AudioConverter\settings.json`
 - 历史：`%APPDATA%\AudioConverter\history.json`
+
+## 开源与许可
+
+- 本项目源码采用 MIT License（见 `LICENSE`）。
+- 发布包内含 FFmpeg（GPLv3）与 .NET Framework 4.8 离线安装包，
+  第三方许可声明见 `THIRD-PARTY-NOTICES.md`。
+- FFmpeg 以独立进程方式调用，不参与本项目源码编译链接。

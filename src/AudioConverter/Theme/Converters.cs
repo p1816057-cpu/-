@@ -79,7 +79,12 @@ namespace AudioConverter.Theme
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is bool b ? !b : true;
+            if (targetType == typeof(Visibility) || targetType == typeof(Visibility?))
+            {
+                return value is bool b && !b ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            return value is bool inverse ? !inverse : true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -302,6 +307,24 @@ namespace AudioConverter.Theme
             {
                 return null;
             }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public sealed class BooleanToTextBrushConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool enabled && enabled)
+            {
+                return Application.Current?.TryFindResource("Brush.TextSecondary") as Brush ?? Brushes.Gray;
+            }
+
+            return Application.Current?.TryFindResource("Brush.TextDisabled") as Brush ?? Brushes.Gray;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

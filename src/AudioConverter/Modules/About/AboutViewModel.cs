@@ -19,6 +19,7 @@ namespace AudioConverter.Modules.About
             CompatibilityText = AudioConverter.Common.WindowsCompatibility.CompatibilityText;
             CopyrightText = "Copyright © 2026 天融 SkyFusion";
             OpenGitHubCommand = new RelayCommand(_ => OpenGitHub());
+            ExportLogCommand = new RelayCommand(_ => LogExporter.Export(_services, System.Windows.Application.Current?.MainWindow));
         }
 
         public string FfmpegVersion { get; }
@@ -34,6 +35,8 @@ namespace AudioConverter.Modules.About
         public string CopyrightText { get; }
 
         public ICommand OpenGitHubCommand { get; }
+
+        public ICommand ExportLogCommand { get; }
 
         private void OpenGitHub()
         {

@@ -12,6 +12,7 @@ namespace AudioConverter
 
             DispatcherUnhandledException += (s, args) =>
             {
+                LogService.Error("未处理异常", args.Exception);
                 MessageBox.Show(
                     "程序发生未处理的错误：\n" + args.Exception.Message,
                     "天融 - SkyFusion",
@@ -23,6 +24,7 @@ namespace AudioConverter
             System.Windows.Forms.Application.EnableVisualStyles();
 
             var services = new AppServices();
+            LogService.Info("程序启动 v1.1.0");
             var window = new MainWindow
             {
                 DataContext = new ShellViewModel(services)

@@ -34,6 +34,7 @@ Source: "..\dist\SkyFusion-Win7-Audio\FFmpeg-LICENSE.txt"; DestDir: "{app}"; Fla
 Source: "..\dist\SkyFusion-Win7-Audio\FFmpeg-README.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\dist\SkyFusion-Win7-Audio\ffmpeg\bin\ffmpeg.exe"; DestDir: "{app}\ffmpeg\bin"; Flags: ignoreversion
 Source: "..\dist\SkyFusion-Win7-Audio\ffmpeg\bin\ffprobe.exe"; DestDir: "{app}\ffmpeg\bin"; Flags: ignoreversion
+Source: "..\dist\SkyFusion-Win7-Audio\运行库（Win7需安装）\NDP48-x86-x64-AllOS-ENU (1).exe"; DestDir: "{app}\运行库"; DestName: "NDP48-x86-x64-AllOS-ENU.exe"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\SkyFusion"; Filename: "{app}\{#MyAppExeName}"
@@ -51,13 +52,48 @@ end;
 
 function InitializeSetup(): Boolean;
 begin
-  if not IsDotNet48Installed() then
+  Result := True;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  resultCode: Integer;
+  installerPath: string;
+begin
+  if CurStep <> ssPostInstall then
+    Exit;
+
+  if IsDotNet48Installed() then
+    Exit;
+
+  installerPath := ExpandConstant('{app}\运行库\NDP48-x86-x64-AllOS-ENU.exe');
+  if not FileExists(installerPath) then
+    Exit;
+
+  if MsgBox('SkyFusion needs Microsoft .NET Framework 4.8. ' + #13#10 +
+            'Do you want to install it automatically now?' + #13#10 +
+            'Yes = one-click install; No = open installer manually.',
+            mbConfirmation, MB_YESNO) = IDYES then
   begin
-    MsgBox('This software requires Microsoft .NET Framework 4.8. ' +
-           'Please install .NET Framework 4.8 first (Windows 7 SP1 users can download the offline installer from Microsoft), then run this setup again.',
-           mbError, MB_OK);
-    Result := False;
+    if Exec(installerPath, '/q /norestart', '', SW_SHOW, ewWaitUntilTerminated, resultCode) then
+    begin
+      if IsDotNet48Installed() then
+        MsgBox('.NET Framework 4.8 has been installed successfully.', mbInformation, MB_OK)
+      else
+        MsgBox('The installation may need a restart. Please restart the computer and then run SkyFusion.',
+               mbInformation, MB_OK);
+    end
+    else
+      MsgBox('Automatic installation failed. Please install .NET Framework 4.8 manually.',
+             mbError, MB_OK);
   end
   else
-    Result := True;
+  begin
+    ShellExec('', installerPath, '', '', SW_SHOW, ewWaitUntilTerminated, resultCode);
+    if IsDotNet48Installed() then
+      MsgBox('.NET Framework 4.8 has been installed.', mbInformation, MB_OK)
+    else
+      MsgBox('If you did not finish installing, please install .NET Framework 4.8 and restart before running SkyFusion.',
+             mbInformation, MB_OK);
+  end;
 end;

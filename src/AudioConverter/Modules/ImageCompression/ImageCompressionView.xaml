@@ -155,12 +155,18 @@
                 <ColumnDefinition Width="330"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0">
-                <!-- 空状态：整块上传区域 -->
+            <Grid x:Name="ImageLeftGrid" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 上半部分：整块上传区域 -->
                 <Border x:Name="DropArea"
+                        Grid.Row="0"
                         Style="{StaticResource Card}"
-                        Padding="12"
-                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                        Padding="12">
                     <Border Background="#FAFAFA"
                             BorderBrush="{StaticResource Brush.BorderStrong}"
                             BorderThickness="1.5"
@@ -169,7 +175,8 @@
                         <Grid>
                             <StackPanel HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        IsHitTestVisible="False">
+                                        IsHitTestVisible="False"
+                                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
                                 <Border Width="68" Height="68"
                                         Background="{StaticResource Brush.AccentSoft}"
                                         CornerRadius="34"
@@ -191,8 +198,37 @@
                                 <TextBlock Text="支持 JPG / JPEG / PNG / WebP / BMP"
                                            Style="{StaticResource CaptionText}"
                                            HorizontalAlignment="Center"
-                                           Margin="0,6,0,0"/>
+                                        Margin="0,6,0,0"/>
                             </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsHitTestVisible="False"
+                                        Visibility="{Binding IsEmpty, Converter={StaticResource InverseBool}}">
+                                <Border Width="38" Height="38"
+                                        Background="{StaticResource Brush.AccentSoft}"
+                                        CornerRadius="19"
+                                        VerticalAlignment="Center">
+                                    <Viewbox Width="18" Height="18">
+                                        <Path Data="{StaticResource ImageUploadArrow}"
+                                              Stroke="{StaticResource Brush.Accent}"
+                                              StrokeThickness="2"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              Stretch="Uniform"/>
+                                    </Viewbox>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+                                    <TextBlock Text="可继续添加图片"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="点击此区域或直接拖入新图片"
+                                               Style="{StaticResource MetaText}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
                             <Button Style="{StaticResource DropOverlayButton}"
                                     AutomationProperties.Name="添加图片"
                                     Command="{Binding AddFilesCommand}"/>
@@ -200,8 +236,8 @@
                     </Border>
                 </Border>
 
-                <!-- 有图片：对比列表 -->
-                <Grid Visibility="{Binding IsEmpty, Converter={StaticResource InverseBool}}">
+                <!-- 下半部分：对比列表 -->
+                <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -209,7 +245,8 @@
                     <Border Grid.Row="0"
                             Style="{StaticResource Card}"
                             Padding="10,8"
-                            Margin="0,0,0,10">
+                            Margin="0,0,0,10"
+                            Visibility="{Binding IsEmpty, Converter={StaticResource InverseBool}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -223,6 +260,8 @@
                             <TextBlock Grid.Column="1"
                                        Text="{Binding SummaryText}"
                                        Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
                                        VerticalAlignment="Center"
                                        Margin="10,0,0,0"/>
                             <Button Grid.Column="2"
@@ -239,22 +278,61 @@
                                     Command="{Binding ClearAllCommand}"/>
                         </Grid>
                     </Border>
-                    <ScrollViewer Grid.Row="1"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl ItemsSource="{Binding Items}"
-                                      ItemTemplate="{StaticResource ImageCard}"/>
-                    </ScrollViewer>
+                    <Grid Grid.Row="1">
+                        <components:EmptyState Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                                               Title="还没有添加文件"
+                                               Description="拖入文件，或点击「添加文件」"
+                                               Glyph="&#x274F;"/>
+
+                        <Grid Visibility="{Binding IsEmpty, Converter={StaticResource InverseBool}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Content="&#x2039;"
+                                    Style="{StaticResource Button.Secondary}"
+                                    FontSize="22"
+                                    Padding="8,10"
+                                    VerticalAlignment="Center"
+                                    Click="OnPreviousClick"
+                                    IsEnabled="{Binding HasPrevious}"/>
+
+                            <Border Grid.Column="1" Margin="10,0">
+                                <ContentControl x:Name="PreviewHost"
+                                                Content="{Binding CurrentItem}"
+                                                ContentTemplate="{StaticResource ImageCard}">
+                                    <ContentControl.RenderTransform>
+                                        <TranslateTransform X="0" Y="0"/>
+                                    </ContentControl.RenderTransform>
+                                </ContentControl>
+                            </Border>
+
+                            <Button Grid.Column="2"
+                                    Content="&#x203A;"
+                                    Style="{StaticResource Button.Secondary}"
+                                    FontSize="22"
+                                    Padding="8,10"
+                                    VerticalAlignment="Center"
+                                    Click="OnNextClick"
+                                    IsEnabled="{Binding HasNext}"/>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
 
-            <Grid Grid.Column="2">
+            <ScrollViewer Grid.Column="2"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="10"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0" Style="{StaticResource Card}">
@@ -265,6 +343,7 @@
                                   DisplayMemberPath="DisplayName"/>
 
                         <TextBlock Text="压缩质量"
+                                   Foreground="{Binding IsQualityEnabled, Converter={StaticResource EnabledToBrush}}"
                                    Style="{StaticResource SectionLabel}"
                                    Margin="0,12,0,0"/>
                         <Grid>
@@ -274,31 +353,37 @@
                             </Grid.ColumnDefinitions>
                             <Slider Minimum="1"
                                     Maximum="100"
+                                    IsEnabled="{Binding IsQualityEnabled}"
                                     Value="{Binding Quality, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
                             <TextBox Grid.Column="1"
+                                     IsEnabled="{Binding IsQualityEnabled}"
                                      Text="{Binding Quality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Width="54"
                                      Margin="10,0,0,0"/>
                         </Grid>
-                        <TextBlock Text="数值越小文件越小，画质越低；JPG 与 WebP 有效，PNG 为无损压缩"
+                        <TextBlock Text="数值越小文件越小，画质越低；JPG 与 WebP 有效"
                                    Style="{StaticResource MetaText}"
+                                   Foreground="{Binding IsQualityEnabled, Converter={StaticResource EnabledToBrush}}"
                                    TextWrapping="Wrap"
                                    Margin="0,6,0,0"/>
+                        <TextBlock Text="PNG 为无损格式，画质与缩放功能不可用"
+                                   Style="{StaticResource MetaText}"
+                                   Foreground="{StaticResource Brush.Warning}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0"
+                                   Visibility="{Binding IsQualityEnabled, Converter={StaticResource InverseBool}}"/>
 
                         <TextBlock Text="缩放比例"
+                                   Foreground="{Binding IsQualityEnabled, Converter={StaticResource EnabledToBrush}}"
                                    Style="{StaticResource SectionLabel}"
                                    Margin="0,12,0,6"/>
                         <ComboBox ItemsSource="{Binding ScaleOptions}"
-                                  SelectedItem="{Binding ScalePercent, Mode=TwoWay}"
+                                  SelectedItem="{Binding SelectedScaleOption, Mode=TwoWay}"
+                                  DisplayMemberPath="DisplayName"
+                                  IsEnabled="{Binding IsQualityEnabled}"
                                   HorizontalAlignment="Left"
-                                  Width="120">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding StringFormat={}{0}%}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  Width="170"/>
 
                         <TextBlock Text="输出目录"
                                    Style="{StaticResource SectionLabel}"
@@ -352,6 +437,10 @@
                                 <TextBlock Text="{Binding SelectedFormatSummary}"
                                            Style="{StaticResource CaptionText}"
                                            Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding SelectedFormatDescription}"
+                                           Style="{StaticResource CaptionText}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,6,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -376,6 +465,7 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>

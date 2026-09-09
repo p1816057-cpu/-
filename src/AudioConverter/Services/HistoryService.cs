@@ -78,6 +78,23 @@ namespace AudioConverter.Services
             }
         }
 
+        public void Delete(HistoryEntry entry)
+        {
+            if (entry == null)
+            {
+                return;
+            }
+
+            lock (_sync)
+            {
+                _entries.RemoveAll(e => ReferenceEquals(e, entry) ||
+                    (e.Timestamp == entry.Timestamp &&
+                     string.Equals(e.FileName, entry.FileName, StringComparison.OrdinalIgnoreCase) &&
+                     string.Equals(e.OutputPath, entry.OutputPath, StringComparison.OrdinalIgnoreCase)));
+                SaveCore();
+            }
+        }
+
         public void Clear()
         {
             lock (_sync)

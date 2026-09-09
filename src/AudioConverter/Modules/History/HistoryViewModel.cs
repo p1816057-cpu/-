@@ -32,6 +32,7 @@ namespace AudioConverter.Modules.History
             OpenLocationCommand = new RelayCommand(
                 p => OpenOutputLocation(p as string),
                 p => !string.IsNullOrWhiteSpace(p as string));
+            DeleteEntryCommand = new RelayCommand(p => DeleteEntry(p as HistoryEntry));
 
             ReloadFromStore();
         }
@@ -45,6 +46,8 @@ namespace AudioConverter.Modules.History
         public ICommand ClearCommand { get; }
 
         public ICommand OpenLocationCommand { get; }
+
+        public ICommand DeleteEntryCommand { get; }
 
         public bool IsEmpty
         {
@@ -261,6 +264,25 @@ namespace AudioConverter.Modules.History
             {
                 ToastService.Instance.Show("无法打开位置：" + ex.Message, ToastKind.Error);
             }
+        }
+
+        private void DeleteEntry(HistoryEntry entry)
+        {
+            if (entry == null)
+            {
+                return;
+            }
+
+            if (!ToastService.Confirm(
+                    string.Format("确定删除这条历史记录吗？\n{0}", entry.FileName),
+                    "删除历史记录"))
+            {
+                return;
+            }
+
+            _services.History.Delete(entry);
+            ReloadFromStore();
+            ToastService.Instance.Show("该条历史记录已删除", ToastKind.Success);
         }
     }
 }

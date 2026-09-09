@@ -31,8 +31,9 @@ namespace AudioConverter.Modules.ImageCompression
         private int _selectedCount;
         private ImageFormatOption _selectedFormatOption;
         private int _quality = 75;
-        private int _scalePercent = 100;
+        private ImageScaleOption _selectedScaleOption;
         private ImageItemViewModel _activeTask;
+        private int _currentIndex;
 
         public ImageCompressionViewModel(AppServices services)
         {
@@ -41,13 +42,23 @@ namespace AudioConverter.Modules.ImageCompression
             Items = new ObservableCollection<ImageItemViewModel>();
             ImageFormatOptions = new List<ImageFormatOption>
             {
-                new ImageFormatOption(ImageOutputFormat.Webp, "WebP", "有损压缩，照片首选"),
+                new ImageFormatOption(ImageOutputFormat.Webp, "WebP", "有损压缩，网页常用"),
                 new ImageFormatOption(ImageOutputFormat.Jpg, "JPG", "通用兼容，画质可调"),
                 new ImageFormatOption(ImageOutputFormat.Png, "PNG", "无损，尺寸缩小有限")
             };
             _selectedFormatOption = ImageFormatOptions[0];
-            _outputDirectory = _services.Settings.Current.OutputDirectory;
-            ScaleOptions = new[] { 100, 80, 60, 50 };
+            _outputDirectory = _services.Settings.Current.ImageOutputDirectory;
+            ScaleOptions = new List<ImageScaleOption>
+            {
+                new ImageScaleOption("原尺寸（不缩放）", 100, null),
+                new ImageScaleOption("等比 80%", 80, null),
+                new ImageScaleOption("等比 60%", 60, null),
+                new ImageScaleOption("等比 50%", 50, null),
+                new ImageScaleOption("最长边 ≤ 2560px", null, 2560),
+                new ImageScaleOption("最长边 ≤ 1920px", null, 1920),
+                new ImageScaleOption("最长边 ≤ 1280px", null, 1280)
+            };
+            _selectedScaleOption = ScaleOptions[0];
 
             AddFilesCommand = new RelayCommand(_ => AddFiles());
             BrowseOutputCommand = new RelayCommand(_ => BrowseOutputDirectory());
@@ -57,14 +68,16 @@ namespace AudioConverter.Modules.ImageCompression
             ClearAllCommand = new RelayCommand(_ => ClearAll(), _ => CanClearAll());
 
             Items.CollectionChanged += (s, e) => UpdateCounters();
+            Items.CollectionChanged += (s, e) => UpdateCarousel();
             UpdateCounters();
+            UpdateCarousel();
         }
 
         public ObservableCollection<ImageItemViewModel> Items { get; }
 
         public IReadOnlyList<ImageFormatOption> ImageFormatOptions { get; }
 
-        public IReadOnlyList<int> ScaleOptions { get; }
+        public IReadOnlyList<ImageScaleOption> ScaleOptions { get; }
 
         public ICommand AddFilesCommand { get; }
 
@@ -85,6 +98,8 @@ namespace AudioConverter.Modules.ImageCompression
             {
                 if (SetProperty(ref _selectedFormatOption, value) && value != null)
                 {
+                    OnPropertyChanged(nameof(IsQualityEnabled));
+                    OnPropertyChanged(nameof(SelectedFormatDescription));
                     SchedulePreview();
                 }
             }
@@ -104,12 +119,12 @@ namespace AudioConverter.Modules.ImageCompression
             }
         }
 
-        public int ScalePercent
+        public ImageScaleOption SelectedScaleOption
         {
-            get { return _scalePercent; }
+            get { return _selectedScaleOption; }
             set
             {
-                if (SetProperty(ref _scalePercent, value))
+                if (SetProperty(ref _selectedScaleOption, value) && value != null)
                 {
                     SchedulePreview();
                 }
@@ -195,6 +210,43 @@ namespace AudioConverter.Modules.ImageCompression
             get { return _activeTask?.StatusText ?? "—"; }
         }
 
+        public int CurrentIndex
+        {
+            get { return _currentIndex; }
+            private set
+            {
+                if (SetProperty(ref _currentIndex, value))
+                {
+                    OnPropertyChanged(nameof(CurrentItem));
+                    OnPropertyChanged(nameof(HasPrevious));
+                    OnPropertyChanged(nameof(HasNext));
+                }
+            }
+        }
+
+        public ImageItemViewModel CurrentItem
+        {
+            get
+            {
+                if (Items.Count == 0 || _currentIndex < 0 || _currentIndex >= Items.Count)
+                {
+                    return null;
+                }
+
+                return Items[_currentIndex];
+            }
+        }
+
+        public bool HasPrevious
+        {
+            get { return _currentIndex > 0; }
+        }
+
+        public bool HasNext
+        {
+            get { return _currentIndex < Items.Count - 1; }
+        }
+
         public string SelectedFormatName
         {
             get { return SelectedFormatOption?.Name ?? "WebP"; }
@@ -203,6 +255,27 @@ namespace AudioConverter.Modules.ImageCompression
         public string SelectedFormatSummary
         {
             get { return SelectedFormatOption?.Summary ?? ""; }
+        }
+
+        public bool IsQualityEnabled
+        {
+            get { return SelectedFormatOption?.Value != ImageOutputFormat.Png; }
+        }
+
+        public string SelectedFormatDescription
+        {
+            get
+            {
+                switch (SelectedFormatOption?.Value)
+                {
+                    case ImageOutputFormat.Jpg:
+                        return "有损压缩，兼容性最好；不支持透明背景。";
+                    case ImageOutputFormat.Png:
+                        return "无损格式，不支持质量/缩放压缩；带透明背景图片建议选择 PNG。";
+                    default:
+                        return "有损压缩，网页常用；支持透明背景，适合照片与网页图片。";
+                }
+            }
         }
 
         public void AddPaths(IEnumerable<string> paths)
@@ -315,7 +388,7 @@ namespace AudioConverter.Modules.ImageCompression
                     preview,
                     SelectedFormatOption.Value,
                     Quality,
-                    ScalePercent,
+                    ScalePercentFor(item),
                     token);
 
                 if (result.Success && File.Exists(preview))
@@ -439,7 +512,7 @@ namespace AudioConverter.Modules.ImageCompression
                         resolution.Path,
                         SelectedFormatOption.Value,
                         Quality,
-                        ScalePercent,
+                        ScalePercentFor(item),
                         _conversionCancellation.Token);
 
                     if (result.Success && File.Exists(resolution.Path))
@@ -588,6 +661,8 @@ namespace AudioConverter.Modules.ImageCompression
                 item.PropertyChanged -= OnItemPropertyChanged;
                 Items.Remove(item);
             }
+
+            CurrentIndex = 0;
         }
 
         private bool CanClearAll()
@@ -631,6 +706,40 @@ namespace AudioConverter.Modules.ImageCompression
             CommandManager.InvalidateRequerySuggested();
         }
 
+        private void UpdateCarousel()
+        {
+            if (_currentIndex >= Items.Count)
+            {
+                CurrentIndex = Math.Max(0, Items.Count - 1);
+            }
+            else if (_currentIndex < 0)
+            {
+                CurrentIndex = 0;
+            }
+            else
+            {
+                OnPropertyChanged(nameof(CurrentItem));
+                OnPropertyChanged(nameof(HasPrevious));
+                OnPropertyChanged(nameof(HasNext));
+            }
+        }
+
+        public void MovePrevious()
+        {
+            if (_currentIndex > 0)
+            {
+                CurrentIndex = _currentIndex - 1;
+            }
+        }
+
+        public void MoveNext()
+        {
+            if (_currentIndex < Items.Count - 1)
+            {
+                CurrentIndex = _currentIndex + 1;
+            }
+        }
+
         private void RaiseRunningState()
         {
             OnPropertyChanged(nameof(IsTaskRunning));
@@ -638,6 +747,22 @@ namespace AudioConverter.Modules.ImageCompression
             OnPropertyChanged(nameof(ActiveTaskName));
             OnPropertyChanged(nameof(ActiveStatusText));
             CommandManager.InvalidateRequerySuggested();
+        }
+
+        private int ScalePercentFor(ImageItemViewModel item)
+        {
+            if (SelectedScaleOption?.MaxEdge is int max && max > 0 && item.OriginalWidth > 0 && item.OriginalHeight > 0)
+            {
+                int longest = Math.Max(item.OriginalWidth, item.OriginalHeight);
+                if (longest > max)
+                {
+                    return Math.Max(1, (int)Math.Round(max * 100.0 / longest));
+                }
+
+                return 100;
+            }
+
+            return SelectedScaleOption?.Percent ?? 100;
         }
 
         private static void TryDelete(string path)

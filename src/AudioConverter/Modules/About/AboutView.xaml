@@ -17,58 +17,8 @@
                        Margin="0,4,0,0"/>
         </StackPanel>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230"/>
-                <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- 左侧：标识卡 -->
-            <Border Grid.Column="0" Style="{StaticResource Card}">
-                <StackPanel VerticalAlignment="Center">
-                    <Border Width="72" Height="72"
-                            Background="{StaticResource Brush.AccentSoft}"
-                            CornerRadius="18"
-                            HorizontalAlignment="Center">
-                        <TextBlock Text="&#x266A;"
-                                   FontSize="36"
-                                   Foreground="{StaticResource Brush.Accent}"
-                                   FontFamily="Segoe UI Symbol"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="天融 - SkyFusion"
-                               FontSize="17"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Center"
-                               Margin="0,14,0,0"/>
-                    <TextBlock Text="{Binding AppVersion}"
-                               Style="{StaticResource CaptionText}"
-                               HorizontalAlignment="Center"
-                               Margin="0,4,0,0"/>
-                    <Border Background="{StaticResource Brush.AccentSoft}"
-                            CornerRadius="8"
-                            Padding="10,7"
-                            Margin="0,16,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{Binding SloganChinese}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource Brush.Accent}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding SloganEnglish}"
-                                       Style="{StaticResource MetaText}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-
-            <!-- 右侧：信息与链接 -->
-            <Border Grid.Column="2" Style="{StaticResource Card}">
-                <StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <StackPanel>
                     <Grid Margin="0,0,0,8">
                         <TextBlock Text="产品信息"
                                    Style="{StaticResource CardTitle}"/>
@@ -145,8 +95,13 @@
                     <TextBlock Style="{StaticResource MetaText}"
                                Text="Powered by FFmpeg（GPL）"
                                Margin="0,14,0,0"/>
+                    <Button Content="遇到问题了？导出日志并联系管理员"
+                            Style="{StaticResource Button.Ghost}"
+                            Foreground="{StaticResource Brush.Accent}"
+                            HorizontalAlignment="Left"
+                            Margin="0,12,0,0"
+                            Command="{Binding ExportLogCommand}"/>
                 </StackPanel>
             </Border>
-        </Grid>
     </Grid>
 </UserControl>

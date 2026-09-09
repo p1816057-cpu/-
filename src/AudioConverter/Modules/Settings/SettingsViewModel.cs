@@ -16,7 +16,9 @@ namespace AudioConverter.Modules.Settings
     {
         private readonly AppServices _services;
         private SettingOption _selectedDefaultFormat;
+        private SettingImageOption _selectedImageDefaultFormat;
         private string _outputDirectory;
+        private string _imageOutputDirectory;
         private string _logDirectory;
         private string _tempDirectory;
         private string _ffmpegDirectory;
@@ -39,9 +41,17 @@ namespace AudioConverter.Modules.Settings
                 new SettingOption(OutputFormat.Wav, "WAV"),
                 new SettingOption(OutputFormat.Flac, "FLAC")
             };
+            ImageFormatOptions = new ObservableCollection<SettingImageOption>
+            {
+                new SettingImageOption(ImageOutputFormat.Webp, "WebP"),
+                new SettingImageOption(ImageOutputFormat.Jpg, "JPG"),
+                new SettingImageOption(ImageOutputFormat.Png, "PNG")
+            };
 
             _selectedDefaultFormat = FormatOptions.First(o => o.Value == settings.DefaultOutputFormat);
+            _selectedImageDefaultFormat = ImageFormatOptions.First(o => o.Value == settings.DefaultImageFormat);
             _outputDirectory = settings.OutputDirectory;
+            _imageOutputDirectory = settings.ImageOutputDirectory;
             _logDirectory = settings.LogDirectory;
             _tempDirectory = settings.TempDirectory;
             _ffmpegDirectory = settings.FfmpegDirectory;
@@ -61,22 +71,45 @@ namespace AudioConverter.Modules.Settings
                     break;
             }
 
-            Sections = new[] { "常规", "转换", "输出", "文件冲突", "任务", "存储" };
-            _selectedSection = Sections[0];
+            NavGroups = new List<SettingsNavGroup>
+            {
+                new SettingsNavGroup("功能区默认", new[]
+                {
+                    new SettingsNavItem("音频默认", "音频默认"),
+                    new SettingsNavItem("图片默认", "图片默认")
+                }),
+                new SettingsNavGroup("输出位置", new[]
+                {
+                    new SettingsNavItem("音频输出", "音频输出"),
+                    new SettingsNavItem("图片输出", "图片输出")
+                }),
+                new SettingsNavGroup("通用", new[]
+                {
+                    new SettingsNavItem("转换", "转换"),
+                    new SettingsNavItem("文件冲突", "文件冲突"),
+                    new SettingsNavItem("任务", "任务"),
+                    new SettingsNavItem("存储", "存储")
+                })
+            };
+            _selectedSection = "音频默认";
             RetryOptions = Enumerable.Range(1, 5).ToList();
 
             SaveCommand = new RelayCommand(_ => Save());
             ResetCommand = new RelayCommand(_ => ResetDefaults());
             BrowseOutputCommand = new RelayCommand(_ => Browse(ref _outputDirectory, nameof(OutputDirectory)));
+            BrowseImageOutputCommand = new RelayCommand(_ => Browse(ref _imageOutputDirectory, nameof(ImageOutputDirectory)));
             BrowseLogCommand = new RelayCommand(_ => Browse(ref _logDirectory, nameof(LogDirectory)));
             BrowseTempCommand = new RelayCommand(_ => Browse(ref _tempDirectory, nameof(TempDirectory)));
             BrowseFfmpegCommand = new RelayCommand(_ => Browse(ref _ffmpegDirectory, nameof(FfmpegDirectory)));
             OpenDataFolderCommand = new RelayCommand(_ => OpenDataFolder());
+            ExportLogCommand = new RelayCommand(_ => LogExporter.Export(_services, Application.Current?.MainWindow));
         }
 
         public ObservableCollection<SettingOption> FormatOptions { get; }
 
-        public IReadOnlyList<string> Sections { get; }
+        public ObservableCollection<SettingImageOption> ImageFormatOptions { get; }
+
+        public IReadOnlyList<SettingsNavGroup> NavGroups { get; }
 
         public IReadOnlyList<int> RetryOptions { get; }
 
@@ -86,6 +119,8 @@ namespace AudioConverter.Modules.Settings
 
         public ICommand BrowseOutputCommand { get; }
 
+        public ICommand BrowseImageOutputCommand { get; }
+
         public ICommand BrowseLogCommand { get; }
 
         public ICommand BrowseTempCommand { get; }
@@ -93,6 +128,8 @@ namespace AudioConverter.Modules.Settings
         public ICommand BrowseFfmpegCommand { get; }
 
         public ICommand OpenDataFolderCommand { get; }
+
+        public ICommand ExportLogCommand { get; }
 
         public string SelectedSection
         {
@@ -106,10 +143,22 @@ namespace AudioConverter.Modules.Settings
             set { SetProperty(ref _selectedDefaultFormat, value); }
         }
 
+        public SettingImageOption SelectedImageDefaultFormat
+        {
+            get { return _selectedImageDefaultFormat; }
+            set { SetProperty(ref _selectedImageDefaultFormat, value); }
+        }
+
         public string OutputDirectory
         {
             get { return _outputDirectory; }
             set { SetProperty(ref _outputDirectory, value); }
+        }
+
+        public string ImageOutputDirectory
+        {
+            get { return _imageOutputDirectory; }
+            set { SetProperty(ref _imageOutputDirectory, value); }
         }
 
         public string LogDirectory
@@ -185,7 +234,9 @@ namespace AudioConverter.Modules.Settings
         {
             var settings = _services.Settings.Current;
             settings.DefaultOutputFormat = SelectedDefaultFormat?.Value ?? OutputFormat.Mp3;
+            settings.DefaultImageFormat = SelectedImageDefaultFormat?.Value ?? ImageOutputFormat.Webp;
             settings.OutputDirectory = OutputDirectory;
+            settings.ImageOutputDirectory = ImageOutputDirectory;
             settings.LogDirectory = LogDirectory;
             settings.TempDirectory = TempDirectory;
             settings.FfmpegDirectory = FfmpegDirectory;
@@ -196,6 +247,7 @@ namespace AudioConverter.Modules.Settings
             try
             {
                 Directory.CreateDirectory(settings.OutputDirectory);
+                Directory.CreateDirectory(settings.ImageOutputDirectory);
                 Directory.CreateDirectory(settings.LogDirectory);
                 Directory.CreateDirectory(settings.TempDirectory);
             }
@@ -220,7 +272,9 @@ namespace AudioConverter.Modules.Settings
             string root = _services.Settings.StorageRoot;
             var settings = _services.Settings.Current;
             settings.DefaultOutputFormat = OutputFormat.Mp3;
+            settings.DefaultImageFormat = ImageOutputFormat.Webp;
             settings.OutputDirectory = Path.Combine(music, "AudioConverter");
+            settings.ImageOutputDirectory = Path.Combine(music, "AudioConverter");
             settings.ConflictPolicy = ConflictPolicy.Rename;
             settings.AutoRetry = false;
             settings.RetryLimit = 2;
@@ -231,7 +285,9 @@ namespace AudioConverter.Modules.Settings
             _services.Settings.Save();
 
             SelectedDefaultFormat = FormatOptions.First(o => o.Value == settings.DefaultOutputFormat);
+            SelectedImageDefaultFormat = ImageFormatOptions.First(o => o.Value == settings.DefaultImageFormat);
             OutputDirectory = settings.OutputDirectory;
+            ImageOutputDirectory = settings.ImageOutputDirectory;
             LogDirectory = settings.LogDirectory;
             TempDirectory = settings.TempDirectory;
             FfmpegDirectory = "";
