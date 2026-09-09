@@ -1,0 +1,26 @@
+<UserControl x:Class="AudioConverter.Modules.Office.OfficeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="clr-namespace:AudioConverter.Components">
+    <Grid Margin="20,16,20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="2,0,0,14">
+            <TextBlock Text="办公转换"
+                       FontSize="20"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="Office 文档互相转换功能预留模块"
+                       Style="{StaticResource BodyText}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <components:EmptyState Title="办公转换将在后续版本开放"
+                                   Description="计划支持 Word / Excel / PowerPoint / PDF 等格式的互相转换"
+                                   Glyph="&#x270E;"/>
+        </Border>
+    </Grid>
+</UserControl>

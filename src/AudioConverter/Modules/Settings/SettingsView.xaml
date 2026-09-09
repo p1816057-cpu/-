@@ -1,0 +1,225 @@
+<UserControl x:Class="AudioConverter.Modules.Settings.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Margin="20,16,20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="2,0,0,14">
+            <TextBlock Text="设置"
+                       FontSize="20"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="设置保存在本机；界面采用统一主题，Win7 / Win10 / Win11 均可使用"
+                       Style="{StaticResource BodyText}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧分组导航 -->
+            <Border Grid.Column="0" Style="{StaticResource Card}" Padding="8">
+                <ListBox ItemsSource="{Binding Sections}"
+                         SelectedItem="{Binding SelectedSection, Mode=TwoWay}"
+                         SelectionChanged="OnSectionSelectionChanged"
+                         Style="{StaticResource NavListBox}">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource NavItem}">
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </Border>
+
+            <!-- 右侧设置内容 -->
+            <ScrollViewer Grid.Column="2"
+                          x:Name="SettingsScroll"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="0,0,8,0">
+
+                    <!-- 常规 -->
+                    <Border x:Name="SectionGeneral" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="常规" Style="{StaticResource CardTitle}"/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="默认输出格式" Margin="0,14,0,6"/>
+                            <ComboBox ItemsSource="{Binding FormatOptions}"
+                                      SelectedItem="{Binding SelectedDefaultFormat, Mode=TwoWay}"
+                                      DisplayMemberPath="Name"
+                                      HorizontalAlignment="Left"
+                                      Width="180"/>
+                            <TextBlock Style="{StaticResource MetaText}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"
+                                       Text="默认浅色主题，无渐变、无高饱和色。支持 Windows 7 SP1 / 10 / 11。"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 转换 -->
+                    <Border x:Name="SectionConversion" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="转换" Style="{StaticResource CardTitle}"/>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="编码参数"
+                                           Style="{StaticResource BodyText}"
+                                           VerticalAlignment="Top"/>
+                                <TextBlock Grid.Column="1"
+                                           Style="{StaticResource BodyText}"
+                                           TextWrapping="Wrap"
+                                           Margin="12,0,0,0"
+                                           Text="MP3 = 320 kbps CBR；WAV = 16-bit PCM；FLAC = Compression Level 5。禁止自定义 FFmpeg 参数，以保证可靠性。"/>
+                            </Grid>
+                            <TextBlock Style="{StaticResource MetaText}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"
+                                       Text="转换完成后保持原勾选状态；新添加文件默认不勾选。"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 输出 -->
+                    <Border x:Name="SectionOutput" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="输出" Style="{StaticResource CardTitle}"/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="默认输出目录" Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1"
+                                        Content="浏览…"
+                                        Style="{StaticResource Button.Secondary}"
+                                        Padding="12,6"
+                                        Margin="8,0,0,0"
+                                        Command="{Binding BrowseOutputCommand}"/>
+                            </Grid>
+                            <TextBlock Style="{StaticResource MetaText}"
+                                       Margin="0,8,0,0"
+                                       Text="转换页的默认输出目录取此设置；同名冲突策略见下方「文件冲突」。"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 文件冲突 -->
+                    <Border x:Name="SectionConflict" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="文件冲突" Style="{StaticResource CardTitle}"/>
+                            <TextBlock Text="当输出目录已存在同名文件时："
+                                       Style="{StaticResource BodyText}"
+                                       Margin="0,12,0,4"/>
+                            <RadioButton Content="自动重命名（推荐）：追加 (1)、(2)…，绝不覆盖源文件"
+                                         IsChecked="{Binding Rename, Mode=TwoWay}"
+                                         GroupName="Conflict"
+                                         Margin="0,6,0,0"/>
+                            <RadioButton Content="覆盖已有文件（源文件始终受保护，不会被覆盖）"
+                                         IsChecked="{Binding Overwrite, Mode=TwoWay}"
+                                         GroupName="Conflict"
+                                         Margin="0,6,0,0"/>
+                            <RadioButton Content="跳过：该文件不转换，并在列表中标记为“已跳过”"
+                                         IsChecked="{Binding Skip, Mode=TwoWay}"
+                                         GroupName="Conflict"
+                                         Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 任务 -->
+                    <Border x:Name="SectionTask" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="任务" Style="{StaticResource CardTitle}"/>
+                            <TextBlock Text="多个文件按顺序逐个转换（一次一个），可在转换面板随时取消当前任务。"
+                                       Style="{StaticResource BodyText}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"/>
+                            <CheckBox Content="转换失败后自动重试"
+                                      IsChecked="{Binding AutoRetry, Mode=TwoWay}"
+                                      Margin="0,12,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="24,8,0,0">
+                                <TextBlock Text="最大重试次数"
+                                           Style="{StaticResource BodyText}"
+                                           VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding RetryOptions}"
+                                          SelectedItem="{Binding RetryLimit, Mode=TwoWay}"
+                                          Width="70"
+                                          Margin="10,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 存储 -->
+                    <Border x:Name="SectionStorage" Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="存储" Style="{StaticResource CardTitle}"/>
+
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="日志目录" Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding LogDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1" Content="浏览…" Style="{StaticResource Button.Secondary}"
+                                        Padding="12,6" Margin="8,0,0,0" Command="{Binding BrowseLogCommand}"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="临时目录" Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding TempDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1" Content="浏览…" Style="{StaticResource Button.Secondary}"
+                                        Padding="12,6" Margin="8,0,0,0" Command="{Binding BrowseTempCommand}"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="FFmpeg 目录（留空 = 自动查找）" Margin="0,14,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Text="{Binding FfmpegDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="1" Content="浏览…" Style="{StaticResource Button.Secondary}"
+                                        Padding="12,6" Margin="8,0,0,0" Command="{Binding BrowseFfmpegCommand}"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource MetaText}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,8,0,0"
+                                       Text="自动查找顺序：此处指定的目录 → 程序目录\ffmpeg\bin → PATH。"/>
+                            <Button Content="打开数据目录（设置 / 历史文件）"
+                                    Style="{StaticResource Button.Ghost}"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,10,0,0"
+                                    Command="{Binding OpenDataFolderCommand}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 保存栏 -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="恢复默认"
+                                    Style="{StaticResource Button.Secondary}"
+                                    Command="{Binding ResetCommand}"/>
+                            <Button Content="保存设置"
+                                    Style="{StaticResource Button.Primary}"
+                                    Margin="10,0,0,0"
+                                    Command="{Binding SaveCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

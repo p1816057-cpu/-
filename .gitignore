@@ -1,0 +1,12 @@
+.vs/
+bin/
+obj/
+*.user
+*.suo
+packages/
+TestResults/
+artifacts/
+publish/
+tools/ffmpeg/
+ffmpeg-7.0-essentials_build/
+*.log

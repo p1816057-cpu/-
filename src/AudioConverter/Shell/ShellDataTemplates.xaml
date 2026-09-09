@@ -1,0 +1,66 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:shell="clr-namespace:AudioConverter.Shell"
+                    xmlns:about="clr-namespace:AudioConverter.Modules.About"
+                    xmlns:conv="clr-namespace:AudioConverter.Modules.Conversion"
+                    xmlns:hist="clr-namespace:AudioConverter.Modules.History"
+                    xmlns:office="clr-namespace:AudioConverter.Modules.Office"
+                    xmlns:set="clr-namespace:AudioConverter.Modules.Settings">
+
+    <DataTemplate DataType="{x:Type conv:ConversionViewModel}">
+        <conv:ConversionView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type hist:HistoryViewModel}">
+        <hist:HistoryView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type office:OfficeViewModel}">
+        <office:OfficeView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type set:SettingsViewModel}">
+        <set:SettingsView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type about:AboutViewModel}">
+        <about:AboutView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type shell:NavigationItem}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="22"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Width="16" Height="16"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Center">
+                <Path x:Name="NavIcon"
+                      Data="{StaticResource Geo.Convert}"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                      StrokeThickness="1.6"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Stretch="Uniform"/>
+            </Viewbox>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding DisplayName}"
+                       FontSize="13"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"/>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IconKey}" Value="History">
+                <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.History}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IconKey}" Value="Settings">
+                <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.Settings}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IconKey}" Value="About">
+                <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.About}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IconKey}" Value="Office">
+                <Setter TargetName="NavIcon" Property="Data" Value="{StaticResource Geo.Office}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+</ResourceDictionary>
