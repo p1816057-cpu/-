@@ -97,6 +97,7 @@ namespace AudioConverter.Shell
 
         private void OnOpenAudioFileClick(object sender, RoutedEventArgs e)
         {
+            CloseMenus();
             var dialog = new OpenFileDialog
             {
                 Title = "打开音频或视频文件",
@@ -112,12 +113,32 @@ namespace AudioConverter.Shell
 
         private void OnAboutClick(object sender, RoutedEventArgs e)
         {
+            CloseMenus();
             _shell?.NavigateTo(AppPage.About);
         }
 
         private void OnGitHubClick(object sender, RoutedEventArgs e)
         {
+            CloseMenus();
             ToastService.Instance.Show("GitHub 仓库地址将在项目上架后填写。");
+        }
+
+        private void OnFileMenuButtonClick(object sender, RoutedEventArgs e)
+        {
+            HelpMenuPopup.IsOpen = false;
+            FileMenuPopup.IsOpen = !FileMenuPopup.IsOpen;
+        }
+
+        private void OnHelpMenuButtonClick(object sender, RoutedEventArgs e)
+        {
+            FileMenuPopup.IsOpen = false;
+            HelpMenuPopup.IsOpen = !HelpMenuPopup.IsOpen;
+        }
+
+        private void CloseMenus()
+        {
+            FileMenuPopup.IsOpen = false;
+            HelpMenuPopup.IsOpen = false;
         }
     }
 }

@@ -42,10 +42,68 @@
             </Setter>
         </Style>
 
-        <Style TargetType="MenuItem">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="8,5"/>
+        <Style x:Key="TitleBarMenuButton" TargetType="Button">
             <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="sysshell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="Transparent"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#E4E8EE"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MenuCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+
+        <Style x:Key="MenuRowButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="Transparent"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#F3F4F6"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource Brush.TextDisabled}"/>
+                                <Setter Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -87,26 +145,76 @@
                                    VerticalAlignment="Center"
                                    FontFamily="Segoe UI Symbol"/>
                     </Border>
-                    <Menu Background="Transparent"
-                          BorderThickness="0"
-                          VerticalAlignment="Center"
-                          Margin="6,0,0,0"
-                          sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
-                        <MenuItem Header="文件"
-                                  FontSize="15"
-                                  sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
-                            <MenuItem Header="打开音频文件…" Click="OnOpenAudioFileClick"/>
-                            <MenuItem Header="打开办公文件…" IsEnabled="False"/>
-                            <Separator/>
-                            <MenuItem Header="退出" Click="OnCloseClick"/>
-                        </MenuItem>
-                        <MenuItem Header="帮助"
-                                  FontSize="15"
-                                  sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
-                            <MenuItem Header="关于 SkyFusion" Click="OnAboutClick"/>
-                            <MenuItem Header="GitHub 仓库" Click="OnGitHubClick"/>
-                        </MenuItem>
-                    </Menu>
+                    <Grid Margin="8,0,0,0" VerticalAlignment="Center">
+                        <Button x:Name="FileMenuButton"
+                                Content="文件"
+                                Style="{StaticResource TitleBarMenuButton}"
+                                Click="OnFileMenuButtonClick"
+                                AutomationProperties.Name="文件"/>
+                        <Popup x:Name="FileMenuPopup"
+                               Placement="Bottom"
+                               PlacementTarget="{Binding ElementName=FileMenuButton}"
+                               AllowsTransparency="True"
+                               StaysOpen="False"
+                               PopupAnimation="Fade">
+                            <Border Style="{StaticResource MenuCard}"
+                                    MinWidth="200"
+                                    Margin="0,4,0,0"
+                                    sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black"
+                                                      BlurRadius="16"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.10"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <Button Content="打开音频文件…"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnOpenAudioFileClick"/>
+                                    <Button Content="打开办公文件…"
+                                            Style="{StaticResource MenuRowButton}"
+                                            IsEnabled="False"/>
+                                    <Button Content="退出"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnCloseClick"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
+
+                    <Grid Margin="4,0,0,0" VerticalAlignment="Center">
+                        <Button x:Name="HelpMenuButton"
+                                Content="帮助"
+                                Style="{StaticResource TitleBarMenuButton}"
+                                Click="OnHelpMenuButtonClick"
+                                AutomationProperties.Name="帮助"/>
+                        <Popup x:Name="HelpMenuPopup"
+                               Placement="Bottom"
+                               PlacementTarget="{Binding ElementName=HelpMenuButton}"
+                               AllowsTransparency="True"
+                               StaysOpen="False"
+                               PopupAnimation="Fade">
+                            <Border Style="{StaticResource MenuCard}"
+                                    MinWidth="200"
+                                    Margin="0,4,0,0"
+                                    sysshell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black"
+                                                      BlurRadius="16"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.10"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <Button Content="关于 SkyFusion"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnAboutClick"/>
+                                    <Button Content="GitHub 仓库"
+                                            Style="{StaticResource MenuRowButton}"
+                                            Click="OnGitHubClick"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2"
