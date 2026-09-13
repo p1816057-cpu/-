@@ -2,10 +2,26 @@
 
 **天融万物，格式无界 · Fuse Anything, Convert Anything**
 
+[![Version](https://img.shields.io/badge/version-v1.2.1-2563eb)](docs/VERSIONS.md)
+[![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%207%20SP1%20%E2%86%92%2011-111827)](#系统要求)
+[![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-512bd4)](#系统要求)
+[![Offline](https://img.shields.io/badge/%E7%A6%BB%E7%BA%BF-100%25%20local-dc2626)](#技术栈与设计约束)
+
 天融（SkyFusion）是一款 **完全离线的 Windows 桌面格式转换工具**：音频转换、图片转换与压缩，
 本地调用 FFmpeg 7.0，不联网、不注入、无后台服务，兼容 Windows 7 SP1 x64 到 Windows 11。
 
 当前版本：**v1.2.1**（完整变更见 [`docs/VERSIONS.md`](docs/VERSIONS.md)）
+
+## 界面预览
+
+音频转换（拖拽添加、批量勾选、顺序任务队列）
+
+![音频转换](docs/images/audio-conversion.png)
+
+图片转换、压缩（实时预览与体积对比，左栏导航已改名）
+
+![图片转换、压缩](docs/images/image-conversion.png)
 
 ## 功能
 

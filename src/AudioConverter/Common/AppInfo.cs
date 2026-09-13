@@ -19,7 +19,7 @@ namespace AudioConverter.Common
         /// GitHub 仓库地址：仓库建好后填在这里（例如 https://github.com/用户名/SkyFusion），
         /// 关于页与帮助菜单会统一使用；留空时界面提示"仓库地址待填写"。
         /// </summary>
-        public static readonly string RepositoryUrl = "";
+        public static readonly string RepositoryUrl = "https://github.com/p1816057-cpu/-";
 
         private static string ReadVersion()
         {
