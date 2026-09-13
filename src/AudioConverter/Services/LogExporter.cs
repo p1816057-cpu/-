@@ -18,7 +18,7 @@ namespace AudioConverter.Services
 
                 var sb = new StringBuilder();
                 sb.AppendLine("=== 天融 SkyFusion 诊断日志 ===");
-                sb.AppendLine("版本: 1.1.0");
+                sb.AppendLine("版本: " + AppInfo.Version);
                 sb.AppendLine("导出时间: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 sb.AppendLine("系统: " + Environment.OSVersion.VersionString);
                 sb.AppendLine("FFmpeg: " + services.Ffmpeg.GetFfmpegVersion());

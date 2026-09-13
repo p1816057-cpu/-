@@ -11,7 +11,7 @@ ViewModel（Modules ViewModels）
   ↓ 命令
 Services / Managers（AppServices、Toast、HistoryService、SettingsService）
   ↓
-Core（FfmpegLocator、FfprobeRunner、FfmpegRunner、ConversionTaskManager、OutputPathResolver）
+Core（FfmpegLocator、FfprobeRunner、FfmpegRunner、ConversionTaskManager、OutputPathResolver、OutputLocation）
   ↓
 FFmpeg.exe / FFprobe.exe（本地进程，同机调用）
 ```

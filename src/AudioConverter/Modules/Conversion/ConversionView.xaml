@@ -340,9 +340,13 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding OutputDirectory, Mode=TwoWay}"
+                            <TextBox Text="{Binding OutputDirectoryDisplay, Mode=OneWay}"
                                      IsReadOnly="True"
-                                     ToolTip="{Binding OutputDirectory}">
+                                     FontSize="12"
+                                     TextWrapping="Wrap"
+                                     MaxLines="2"
+                                     VerticalContentAlignment="Center"
+                                     ToolTip="{Binding OutputDirectoryDisplay}">
                                 <TextBox.Style>
                                     <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                         <Setter Property="Background" Value="#FAFAFA"/>
@@ -358,6 +362,18 @@
                                     Margin="8,0,0,0"
                                     Command="{Binding BrowseOutputCommand}"/>
                         </Grid>
+                        <TextBlock Style="{StaticResource MetaText}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0"
+                                   Text="默认输出到程序所在文件夹的「转换输出」子文件夹；点「浏览…」可改为固定文件夹并保存在本机。"/>
+                        <Button Content="改回程序所在文件夹"
+                                Style="{StaticResource Button.Ghost}"
+                                FontSize="12"
+                                Padding="6,3"
+                                HorizontalAlignment="Left"
+                                Margin="0,6,0,0"
+                                Visibility="{Binding IsCustomOutputDirectory, Converter={StaticResource BoolToVis}}"
+                                Command="{Binding UseDefaultOutputCommand}"/>
 
                         <Grid Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>

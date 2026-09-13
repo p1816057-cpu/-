@@ -25,7 +25,8 @@ namespace AudioConverter.Modules.ImageCompression
         private CancellationTokenSource _previewCancellation;
         private CancellationTokenSource _conversionCancellation;
         private bool _isRunning;
-        private string _outputDirectory;
+        private OutputLocationMode _outputMode;
+        private string _customOutputDirectory;
         private bool? _selectAllState;
         private int _addedCount;
         private int _selectedCount;
@@ -38,7 +39,7 @@ namespace AudioConverter.Modules.ImageCompression
         public ImageCompressionViewModel(AppServices services)
         {
             _services = services;
-            Title = "图片压缩";
+            Title = "图片转换、压缩";
             Items = new ObservableCollection<ImageItemViewModel>();
             ImageFormatOptions = new List<ImageFormatOption>
             {
@@ -47,7 +48,8 @@ namespace AudioConverter.Modules.ImageCompression
                 new ImageFormatOption(ImageOutputFormat.Png, "PNG", "无损，尺寸缩小有限")
             };
             _selectedFormatOption = ImageFormatOptions[0];
-            _outputDirectory = _services.Settings.Current.ImageOutputDirectory;
+            _outputMode = _services.Settings.Current.ImageOutputMode;
+            _customOutputDirectory = _services.Settings.Current.ImageOutputDirectory ?? string.Empty;
             ScaleOptions = new List<ImageScaleOption>
             {
                 new ImageScaleOption("原尺寸（不缩放）", 100, null),
@@ -62,6 +64,7 @@ namespace AudioConverter.Modules.ImageCompression
 
             AddFilesCommand = new RelayCommand(_ => AddFiles());
             BrowseOutputCommand = new RelayCommand(_ => BrowseOutputDirectory());
+            UseDefaultOutputCommand = new RelayCommand(_ => ApplyOutputLocation(OutputLocationMode.ProgramFolder, CustomOutputDirectory));
             StartCommand = new AsyncRelayCommand(_ => StartCompressionAsync());
             CancelCommand = new RelayCommand(_ => CancelCompression(), _ => _isRunning);
             RemoveFileCommand = new RelayCommand(p => RemoveItem(p as ImageItemViewModel), p => CanRemove(p as ImageItemViewModel));
@@ -82,6 +85,9 @@ namespace AudioConverter.Modules.ImageCompression
         public ICommand AddFilesCommand { get; }
 
         public ICommand BrowseOutputCommand { get; }
+
+        /// <summary>自定义模式下改回默认输出位置（程序所在文件夹的「转换输出」）。</summary>
+        public ICommand UseDefaultOutputCommand { get; }
 
         public ICommand StartCommand { get; }
 
@@ -131,10 +137,52 @@ namespace AudioConverter.Modules.ImageCompression
             }
         }
 
-        public string OutputDirectory
+        /// <summary>输出位置模式：默认跟随源文件，用户可在压缩页或设置页改为固定文件夹。</summary>
+        public OutputLocationMode OutputMode
         {
-            get { return _outputDirectory; }
-            set { SetProperty(ref _outputDirectory, value); }
+            get { return _outputMode; }
+            private set
+            {
+                if (SetProperty(ref _outputMode, value))
+                {
+                    RaiseOutputLocationState();
+                }
+            }
+        }
+
+        /// <summary>用户手动选择过的固定输出文件夹（仅自定义模式生效）。</summary>
+        public string CustomOutputDirectory
+        {
+            get { return _customOutputDirectory; }
+            private set
+            {
+                if (SetProperty(ref _customOutputDirectory, value ?? string.Empty))
+                {
+                    RaiseOutputLocationState();
+                }
+            }
+        }
+
+        /// <summary>输出框显示文案：源文件模式显示「与源文件相同文件夹」，自定义模式显示实际路径。</summary>
+        public string OutputDirectoryDisplay
+        {
+            get
+            {
+                switch (OutputMode)
+                {
+                    case OutputLocationMode.Custom:
+                        return CustomOutputDirectory;
+                    case OutputLocationMode.SourceFolder:
+                        return OutputLocation.SourceFolderDisplay;
+                    default:
+                        return OutputLocation.ProgramOutputDirectory;
+                }
+            }
+        }
+
+        public bool IsCustomOutputDirectory
+        {
+            get { return OutputMode == OutputLocationMode.Custom; }
         }
 
         public bool? SelectAllState
@@ -427,18 +475,48 @@ namespace AudioConverter.Modules.ImageCompression
         {
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                dialog.Description = "选择图片输出目录";
+                dialog.Description = "选择图片固定输出文件夹";
                 dialog.ShowNewFolderButton = true;
-                if (Directory.Exists(OutputDirectory))
+                if (!string.IsNullOrWhiteSpace(CustomOutputDirectory) && Directory.Exists(CustomOutputDirectory))
                 {
-                    dialog.SelectedPath = OutputDirectory;
+                    dialog.SelectedPath = CustomOutputDirectory;
                 }
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    OutputDirectory = dialog.SelectedPath;
+                    ApplyOutputLocation(OutputLocationMode.Custom, dialog.SelectedPath);
                 }
             }
+        }
+
+        /// <summary>输出位置改动立即写入本机设置（%APPDATA%\AudioConverter\settings.json）。</summary>
+        private void ApplyOutputLocation(OutputLocationMode mode, string customDirectory)
+        {
+            _outputMode = mode;
+            _customOutputDirectory = customDirectory ?? string.Empty;
+            RaiseOutputLocationState();
+
+            var settings = _services.Settings.Current;
+            settings.ImageOutputMode = mode;
+            settings.ImageOutputDirectory = _customOutputDirectory;
+            _services.Settings.Save();
+        }
+
+        /// <summary>设置页可能改过输出位置，回到本页时同步一次。</summary>
+        public override void OnActivated()
+        {
+            var settings = _services.Settings.Current;
+            _outputMode = settings.ImageOutputMode;
+            _customOutputDirectory = settings.ImageOutputDirectory ?? string.Empty;
+            RaiseOutputLocationState();
+        }
+
+        private void RaiseOutputLocationState()
+        {
+            OnPropertyChanged(nameof(OutputMode));
+            OnPropertyChanged(nameof(CustomOutputDirectory));
+            OnPropertyChanged(nameof(OutputDirectoryDisplay));
+            OnPropertyChanged(nameof(IsCustomOutputDirectory));
         }
 
         private async Task StartCompressionAsync()
@@ -457,16 +535,6 @@ namespace AudioConverter.Modules.ImageCompression
             if (!_services.Ffmpeg.IsAvailable(out string missing))
             {
                 ToastService.Instance.Show(missing, ToastKind.Error);
-                return;
-            }
-
-            try
-            {
-                Directory.CreateDirectory(OutputDirectory);
-            }
-            catch (Exception ex)
-            {
-                ToastService.Instance.Show("输出目录不可用：" + ex.Message, ToastKind.Error);
                 return;
             }
 
@@ -494,6 +562,20 @@ namespace AudioConverter.Modules.ImageCompression
                 RaiseRunningState();
 
                 string ext = ImageFfmpegRunner.Extension(SelectedFormatOption.Value);
+                try
+                {
+                    // 每张图片可能来自不同文件夹，输出目录逐个创建（默认是源文件夹下的「转换输出」）
+                    Directory.CreateDirectory(OutputLocation.ResolveDirectory(item.FilePath, OutputMode, CustomOutputDirectory));
+                }
+                catch
+                {
+                    item.Status = ConversionStatus.Failed;
+                    failed++;
+                    _activeTask = null;
+                    RaiseRunningState();
+                    continue;
+                }
+
                 var resolution = ResolveOutput(item.FilePath, ext);
                 if (resolution.Skip)
                 {
@@ -583,9 +665,7 @@ namespace AudioConverter.Modules.ImageCompression
 
         private (string Path, bool Skip) ResolveOutput(string inputPath, string extension)
         {
-            string directory = string.IsNullOrWhiteSpace(OutputDirectory)
-                ? Path.GetDirectoryName(inputPath)
-                : OutputDirectory;
+            string directory = OutputLocation.ResolveDirectory(inputPath, OutputMode, CustomOutputDirectory);
             string baseName = Path.GetFileNameWithoutExtension(inputPath);
             string candidate = Path.Combine(directory, baseName + extension);
 

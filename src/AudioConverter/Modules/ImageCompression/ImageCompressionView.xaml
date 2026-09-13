@@ -140,10 +140,10 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="2,0,0,12">
-            <TextBlock Text="图片压缩"
+            <TextBlock Text="图片转换、压缩"
                        FontSize="20"
                        FontWeight="SemiBold"/>
-            <TextBlock Text="支持 JPG / PNG / WebP / BMP，压缩前后实时对比"
+            <TextBlock Text="支持 JPG / PNG / WebP / BMP，转换 / 压缩前后实时对比"
                        Style="{StaticResource BodyText}"
                        Margin="0,4,0,0"/>
         </StackPanel>
@@ -393,9 +393,15 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding OutputDirectory, Mode=TwoWay}"
+                            <TextBox Text="{Binding OutputDirectoryDisplay, Mode=OneWay}"
                                      IsReadOnly="True"
-                                     Background="#FAFAFA"/>
+                                     FontSize="12"
+                                     TextWrapping="Wrap"
+                                     MaxLines="2"
+                                     VerticalContentAlignment="Center"
+                                     Background="#FAFAFA"
+                                     Foreground="{StaticResource Brush.TextMuted}"
+                                     ToolTip="{Binding OutputDirectoryDisplay}"/>
                             <Button Grid.Column="1"
                                     Content="浏览…"
                                     Style="{StaticResource Button.Secondary}"
@@ -403,6 +409,18 @@
                                     Margin="8,0,0,0"
                                     Command="{Binding BrowseOutputCommand}"/>
                         </Grid>
+                        <TextBlock Style="{StaticResource MetaText}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0"
+                                   Text="默认输出到程序所在文件夹的「转换输出」子文件夹。"/>
+                        <Button Content="改回程序所在文件夹"
+                                Style="{StaticResource Button.Ghost}"
+                                FontSize="12"
+                                Padding="6,3"
+                                HorizontalAlignment="Left"
+                                Margin="0,6,0,0"
+                                Visibility="{Binding IsCustomOutputDirectory, Converter={StaticResource BoolToVis}}"
+                                Command="{Binding UseDefaultOutputCommand}"/>
 
                         <Grid Margin="0,14,0,0">
                             <Grid.ColumnDefinitions>

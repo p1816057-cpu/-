@@ -17,6 +17,14 @@ namespace AudioConverter.Models
         [DataMember]
         public string ImageOutputDirectory { get; set; }
 
+        /// <summary>音频输出位置模式，默认跟随源文件。</summary>
+        [DataMember]
+        public OutputLocationMode AudioOutputMode { get; set; }
+
+        /// <summary>图片输出位置模式，默认跟随源文件。</summary>
+        [DataMember]
+        public OutputLocationMode ImageOutputMode { get; set; }
+
         [DataMember]
         public ConflictPolicy ConflictPolicy { get; set; } = ConflictPolicy.Rename;
 

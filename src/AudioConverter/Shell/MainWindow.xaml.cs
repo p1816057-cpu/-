@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using AudioConverter.Services;
@@ -12,7 +13,7 @@ using System.Windows.Controls;
 
 namespace AudioConverter.Shell
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IModalMaskHost
     {
         private ShellViewModel _shell;
         private DispatcherTimer _subMenuTimer;
@@ -22,6 +23,29 @@ namespace AudioConverter.Shell
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
             SizeChanged += OnWindowSizeChanged;
+        }
+
+        /// <summary>弹窗出现时压暗界面，让弹窗边框与背景明显区分（弹窗关闭后立即恢复）。</summary>
+        public void ShowModalMask()
+        {
+            // 背景虚化 + 半透明压暗，形成“毛玻璃”效果，让弹窗更醒目
+            ShellRoot.Effect = new BlurEffect { Radius = 8, KernelType = KernelType.Gaussian };
+
+            ModalMask.BeginAnimation(OpacityProperty, null);
+            ModalMask.Opacity = 0;
+            ModalMask.Visibility = Visibility.Visible;
+            var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(120));
+            ModalMask.BeginAnimation(OpacityProperty, fade);
+        }
+
+        public void HideModalMask()
+        {
+            ModalMask.BeginAnimation(OpacityProperty, null);
+            ModalMask.Opacity = 0;
+            ModalMask.Visibility = Visibility.Collapsed;
+
+            // 模糊很吃渲染，弹窗关闭后必须摘掉
+            ShellRoot.Effect = null;
         }
 
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -145,7 +169,11 @@ namespace AudioConverter.Shell
         private void OnGitHubClick(object sender, RoutedEventArgs e)
         {
             CloseMenus();
-            ToastService.Instance.Show("GitHub 仓库地址将在项目上架后填写。");
+            string url = AudioConverter.Common.AppInfo.RepositoryUrl;
+            ToastService.Instance.Show(
+                string.IsNullOrWhiteSpace(url)
+                    ? "GitHub 仓库地址将在项目上架后填写。"
+                    : "GitHub 仓库：" + url);
         }
 
         private void OnExportLogsClick(object sender, RoutedEventArgs e)
@@ -268,7 +296,7 @@ namespace AudioConverter.Shell
         {
             CloseMenus();
             ToastService.Instance.Show(
-                "当前版本：v1.1.0\n\n用于测试日志导出与问题反馈。",
+                "当前版本：" + AudioConverter.Common.AppInfo.DisplayVersion + "\n\n用于测试日志导出与问题反馈。",
                 ToastKind.Info);
         }
     }

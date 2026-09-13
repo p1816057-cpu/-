@@ -1,5 +1,5 @@
 #define MyAppName "SkyFusion"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.1"
 #define MyAppExeName "SkyFusion.exe"
 
 [Setup]
@@ -14,11 +14,12 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
 OutputDir=..\dist
-OutputBaseFilename=SkyFusion-Setup-1.1.0
+OutputBaseFilename=SkyFusion-Setup-1.2.1
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\SkyFusion.exe
+SetupIconFile=..\src\AudioConverter\Assets\app.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

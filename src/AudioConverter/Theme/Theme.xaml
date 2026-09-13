@@ -12,6 +12,9 @@
     <Color x:Key="Color.Border">#E5E7EB</Color>
     <Color x:Key="Color.Divider">#ECECEC</Color>
     <Color x:Key="Color.BorderStrong">#D1D5DB</Color>
+    <Color x:Key="Color.BorderStronger">#9CA3AF</Color>
+    <!-- 弹窗遮罩：约 30% 黑，让弹窗明显浮在界面之上 -->
+    <Color x:Key="Color.ModalMask">#4D000000</Color>
     <Color x:Key="Color.TextPrimary">#111827</Color>
     <Color x:Key="Color.TextSecondary">#374151</Color>
     <Color x:Key="Color.TextMuted">#6B7280</Color>
@@ -42,6 +45,8 @@
     <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Border}"/>
     <SolidColorBrush x:Key="Brush.Divider" Color="{StaticResource Color.Divider}"/>
     <SolidColorBrush x:Key="Brush.BorderStrong" Color="{StaticResource Color.BorderStrong}"/>
+    <SolidColorBrush x:Key="Brush.BorderStronger" Color="{StaticResource Color.BorderStronger}"/>
+    <SolidColorBrush x:Key="Brush.ModalMask" Color="{StaticResource Color.ModalMask}"/>
     <SolidColorBrush x:Key="Brush.TextPrimary" Color="{StaticResource Color.TextPrimary}"/>
     <SolidColorBrush x:Key="Brush.TextSecondary" Color="{StaticResource Color.TextSecondary}"/>
     <SolidColorBrush x:Key="Brush.TextMuted" Color="{StaticResource Color.TextMuted}"/>

@@ -16,6 +16,17 @@ namespace AudioConverter.Services
     }
 
     /// <summary>
+    /// 能在自己窗口内显示弹窗遮罩的宿主窗口（由 MainWindow 实现）。
+    /// 弹窗出现时压暗整个界面，让弹窗边框和背景明显区分开。
+    /// </summary>
+    public interface IModalMaskHost
+    {
+        void ShowModalMask();
+
+        void HideModalMask();
+    }
+
+    /// <summary>
     /// 居中模态弹窗：替代系统 MessageBox，UI 与 FlClash 风格保持一致。
     /// </summary>
     public sealed class ToastService
@@ -50,6 +61,20 @@ namespace AudioConverter.Services
                 ShowDialog(app.MainWindow, DefaultTitle(kind), message, kind, false, actionText, action)));
         }
 
+        /// <summary>
+        /// 没有主窗口时也能提示（例如第二次启动被单实例检测拦截时），样式与其它提示一致。
+        /// </summary>
+        public static void Notify(string message, string title = "提示", ToastKind kind = ToastKind.Warning)
+        {
+            var app = Application.Current;
+            if (app == null)
+            {
+                return;
+            }
+
+            app.Dispatcher.Invoke(new Action(() => ShowDialog(null, title, message, kind, false)));
+        }
+
         public static bool Confirm(string message, string title = "请确认", ToastKind kind = ToastKind.Warning)
         {
             var owner = Application.Current?.MainWindow;
@@ -74,7 +99,7 @@ namespace AudioConverter.Services
             Action action = null)
         {
             Brush surface = Resolve("Brush.Surface");
-            Brush border = Resolve("Brush.Border");
+            Brush border = Resolve("Brush.BorderStronger");
             Brush kindBackground;
             Brush kindForeground;
             string glyph;
@@ -87,8 +112,9 @@ namespace AudioConverter.Services
                     glyph = "\u2713";
                     break;
                 case ToastKind.Warning:
-                    kindBackground = Resolve("Brush.WarningSoft");
-                    kindForeground = Resolve("Brush.Warning");
+                    // 提示类弹窗统一使用红色系图标
+                    kindBackground = Resolve("Brush.DangerSoft");
+                    kindForeground = Resolve("Brush.Danger");
                     glyph = "!";
                     break;
                 case ToastKind.Error:
@@ -97,8 +123,8 @@ namespace AudioConverter.Services
                     glyph = "\u2715";
                     break;
                 default:
-                    kindBackground = Resolve("Brush.AccentSoft");
-                    kindForeground = Resolve("Brush.Accent");
+                    kindBackground = Resolve("Brush.DangerSoft");
+                    kindForeground = Resolve("Brush.Danger");
                     glyph = "i";
                     break;
             }
@@ -107,7 +133,7 @@ namespace AudioConverter.Services
             {
                 Background = surface,
                 BorderBrush = border,
-                BorderThickness = new Thickness(1),
+                BorderThickness = new Thickness(1.5),
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(20),
                 Width = 400
@@ -115,9 +141,9 @@ namespace AudioConverter.Services
             root.Effect = new DropShadowEffect
             {
                 Color = Colors.Black,
-                BlurRadius = 24,
-                ShadowDepth = 1,
-                Opacity = 0.08
+                BlurRadius = 32,
+                ShadowDepth = 3,
+                Opacity = 0.22
             };
 
             var panel = new StackPanel();
@@ -211,16 +237,52 @@ namespace AudioConverter.Services
                 Content = root,
                 Title = title,
                 Owner = owner,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                WindowStartupLocation = owner == null || owner.WindowState == WindowState.Minimized
+                    ? WindowStartupLocation.CenterScreen
+                    : WindowStartupLocation.CenterOwner,
                 WindowStyle = WindowStyle.None,
                 AllowsTransparency = true,
                 Background = Brushes.Transparent,
                 ResizeMode = ResizeMode.NoResize,
                 ShowInTaskbar = false,
-                SizeToContent = SizeToContent.WidthAndHeight
+                SizeToContent = SizeToContent.WidthAndHeight,
+                // 弹窗只属于本软件：跟随主窗口的层级，不压到别的程序上面；
+                // 只有没有主窗口时（例如第二次启动被拦截）才置顶，避免弹窗被别的窗口盖住找不到。
+                Topmost = owner == null
             };
 
             bool? result = false;
+            dialog.Loaded += (s, e) =>
+            {
+                // 确保键盘焦点和置顶状态第一时间落在弹窗上，用户必须先处理弹窗才能继续操作软件
+                dialog.Activate();
+                dialog.Focus();
+            };
+
+            // 弹窗是主窗口的附属窗口：用户点回本软件时弹窗始终回到主界面之上；
+            // 切到别的程序时弹窗跟着一起沉下去，不会浮在别的软件上面。
+            EventHandler ownerActivated = null;
+            if (owner != null)
+            {
+                ownerActivated = (s, e) =>
+                {
+                    if (!dialog.IsActive)
+                    {
+                        dialog.Activate();
+                    }
+                };
+
+                owner.Activated += ownerActivated;
+            }
+
+            dialog.Closed += (s, e) =>
+            {
+                if (owner != null && ownerActivated != null)
+                {
+                    owner.Activated -= ownerActivated;
+                }
+            };
+
             okButton.Click += (s, e) =>
             {
                 result = true;
@@ -260,7 +322,20 @@ namespace AudioConverter.Services
                 }
             };
 
-            dialog.ShowDialog();
+            // 弹窗出现时压暗主界面（主窗口最小化时没有可遮罩的画面，直接跳过）
+            var maskHost = owner != null && owner.WindowState != WindowState.Minimized
+                ? owner as IModalMaskHost
+                : null;
+            try
+            {
+                maskHost?.ShowModalMask();
+                dialog.ShowDialog();
+            }
+            finally
+            {
+                maskHost?.HideModalMask();
+            }
+
             return result;
         }
 

@@ -23,7 +23,8 @@ namespace AudioConverter.Modules.Conversion
 
         private readonly AppServices _services;
         private OutputFormatOption _selectedFormatOption;
-        private string _outputDirectory;
+        private OutputLocationMode _outputMode;
+        private string _customOutputDirectory;
         private bool? _selectAllState;
         private int _selectedCount;
         private int _addedCount;
@@ -46,10 +47,12 @@ namespace AudioConverter.Modules.Conversion
 
             var preferred = _services.Settings.Current.DefaultOutputFormat;
             _selectedFormatOption = OutputFormatOptions.First(o => o.Value == preferred);
-            _outputDirectory = _services.Settings.Current.OutputDirectory;
+            _outputMode = _services.Settings.Current.AudioOutputMode;
+            _customOutputDirectory = _services.Settings.Current.OutputDirectory ?? string.Empty;
 
             AddFilesCommand = new RelayCommand(_ => AddFiles());
             BrowseOutputCommand = new RelayCommand(_ => BrowseOutputDirectory());
+            UseDefaultOutputCommand = new RelayCommand(_ => ApplyOutputLocation(OutputLocationMode.ProgramFolder, CustomOutputDirectory));
             StartCommand = new AsyncRelayCommand(_ => StartConversionAsync());
             CancelCommand = new RelayCommand(_ => CancelConversion(), _ => _isRunning);
             RemoveFileCommand = new RelayCommand(p => RemoveFile(p as FileItemViewModel), p => CanRemove(p as FileItemViewModel));
@@ -68,6 +71,9 @@ namespace AudioConverter.Modules.Conversion
         public ICommand AddFilesCommand { get; }
 
         public ICommand BrowseOutputCommand { get; }
+
+        /// <summary>自定义模式下改回默认输出位置（程序所在文件夹的「转换输出」）。</summary>
+        public ICommand UseDefaultOutputCommand { get; }
 
         public ICommand StartCommand { get; }
 
@@ -89,10 +95,52 @@ namespace AudioConverter.Modules.Conversion
             }
         }
 
-        public string OutputDirectory
+        /// <summary>输出位置模式：默认跟随源文件，用户可在转换页或设置页改为固定文件夹。</summary>
+        public OutputLocationMode OutputMode
         {
-            get { return _outputDirectory; }
-            set { SetProperty(ref _outputDirectory, value); }
+            get { return _outputMode; }
+            private set
+            {
+                if (SetProperty(ref _outputMode, value))
+                {
+                    RaiseOutputLocationState();
+                }
+            }
+        }
+
+        /// <summary>用户手动选择过的固定输出文件夹（仅自定义模式生效）。</summary>
+        public string CustomOutputDirectory
+        {
+            get { return _customOutputDirectory; }
+            private set
+            {
+                if (SetProperty(ref _customOutputDirectory, value ?? string.Empty))
+                {
+                    RaiseOutputLocationState();
+                }
+            }
+        }
+
+        /// <summary>输出框显示文案：源文件模式显示「与源文件相同文件夹」，自定义模式显示实际路径。</summary>
+        public string OutputDirectoryDisplay
+        {
+            get
+            {
+                switch (OutputMode)
+                {
+                    case OutputLocationMode.Custom:
+                        return CustomOutputDirectory;
+                    case OutputLocationMode.SourceFolder:
+                        return OutputLocation.SourceFolderDisplay;
+                    default:
+                        return OutputLocation.ProgramOutputDirectory;
+                }
+            }
+        }
+
+        public bool IsCustomOutputDirectory
+        {
+            get { return OutputMode == OutputLocationMode.Custom; }
         }
 
         public bool? SelectAllState
@@ -262,18 +310,48 @@ namespace AudioConverter.Modules.Conversion
         {
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
-                dialog.Description = "选择输出目录";
+                dialog.Description = "选择固定输出文件夹";
                 dialog.ShowNewFolderButton = true;
-                if (Directory.Exists(OutputDirectory))
+                if (!string.IsNullOrWhiteSpace(CustomOutputDirectory) && Directory.Exists(CustomOutputDirectory))
                 {
-                    dialog.SelectedPath = OutputDirectory;
+                    dialog.SelectedPath = CustomOutputDirectory;
                 }
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    OutputDirectory = dialog.SelectedPath;
+                    ApplyOutputLocation(OutputLocationMode.Custom, dialog.SelectedPath);
                 }
             }
+        }
+
+        /// <summary>输出位置改动立即写入本机设置（%APPDATA%\AudioConverter\settings.json）。</summary>
+        private void ApplyOutputLocation(OutputLocationMode mode, string customDirectory)
+        {
+            _outputMode = mode;
+            _customOutputDirectory = customDirectory ?? string.Empty;
+            RaiseOutputLocationState();
+
+            var settings = _services.Settings.Current;
+            settings.AudioOutputMode = mode;
+            settings.OutputDirectory = _customOutputDirectory;
+            _services.Settings.Save();
+        }
+
+        /// <summary>设置页可能改过输出位置，回到本页时同步一次。</summary>
+        public override void OnActivated()
+        {
+            var settings = _services.Settings.Current;
+            _outputMode = settings.AudioOutputMode;
+            _customOutputDirectory = settings.OutputDirectory ?? string.Empty;
+            RaiseOutputLocationState();
+        }
+
+        private void RaiseOutputLocationState()
+        {
+            OnPropertyChanged(nameof(OutputMode));
+            OnPropertyChanged(nameof(CustomOutputDirectory));
+            OnPropertyChanged(nameof(OutputDirectoryDisplay));
+            OnPropertyChanged(nameof(IsCustomOutputDirectory));
         }
 
         private async Task StartConversionAsync()
@@ -295,22 +373,12 @@ namespace AudioConverter.Modules.Conversion
                 return;
             }
 
-            try
-            {
-                Directory.CreateDirectory(OutputDirectory);
-            }
-            catch (Exception ex)
-            {
-                ToastService.Instance.Show("输出目录不可用：" + ex.Message, ToastKind.Error);
-                return;
-            }
-
             var selected = Items.Where(i => i.IsChecked).ToList();
             var tasks = selected
                 .Select(item => new ConversionTask(
                     item.FilePath,
                     SelectedFormatOption.Value,
-                    OutputDirectory,
+                    OutputLocation.ResolveDirectory(item.FilePath, OutputMode, CustomOutputDirectory),
                     _services.Settings.Current.ConflictPolicy,
                     _services.Settings.Current.AutoRetry,
                     _services.Settings.Current.RetryLimit))

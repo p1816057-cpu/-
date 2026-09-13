@@ -22,6 +22,9 @@ namespace AudioConverter.Services
             ProbeRunner = new FfprobeRunner();
             ImageRunner = new ImageFfmpegRunner();
 
+            // 默认输出目录：程序目录下的「转换输出」，启动即建好（不可写时会在转换时回退到源文件夹）
+            OutputLocation.EnsureProgramOutputDirectory();
+
             Directory.CreateDirectory(Settings.Current.LogDirectory);
             Directory.CreateDirectory(Settings.Current.TempDirectory);
         }

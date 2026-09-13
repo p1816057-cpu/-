@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:sysshell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:common="clr-namespace:AudioConverter.Common"
         Title="天融 - SkyFusion"
+        Icon="/Assets/app.ico"
         Width="1180"
         Height="720"
         MinWidth="820"
@@ -115,6 +117,9 @@
                                UseAeroCaptionButtons="False"/>
     </sysshell:WindowChrome.WindowChrome>
 
+    <Grid>
+    <!-- ShellRoot：弹窗出现时对它加模糊，形成毛玻璃背景 -->
+    <Border x:Name="ShellRoot" Background="{StaticResource Brush.WindowBg}">
     <DockPanel>
         <!-- 自定义标题栏 -->
         <Border DockPanel.Dock="Top"
@@ -134,17 +139,14 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="12,0">
-                    <Border Width="22" Height="22"
-                            Background="{StaticResource Brush.Accent}"
-                            CornerRadius="6"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="&#x266A;"
-                                   FontSize="12"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   FontFamily="Segoe UI Symbol"/>
-                    </Border>
+                    <!-- 标题栏 Logo：使用程序图标（App 资源里的 app-logo.png） -->
+                    <Image Width="22"
+                           Height="22"
+                           VerticalAlignment="Center"
+                           Source="/Assets/app-logo.png"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           Stretch="Uniform"
+                           SnapsToDevicePixels="True"/>
                     <Grid Margin="8,0,0,0" VerticalAlignment="Center">
                         <Button x:Name="FileMenuButton"
                                 Content="文件"
@@ -262,7 +264,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="当前版本" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1"
-                                                       Text="v1.1.0"
+                                                       Text="{x:Static common:AppInfo.DisplayVersion}"
                                                        Foreground="{StaticResource Brush.TextMuted}"
                                                        VerticalAlignment="Center"/>
                                         </Grid>
@@ -371,4 +373,13 @@
                             Focusable="False"/>
         </Grid>
     </DockPanel>
+    </Border>
+
+    <!-- 弹窗遮罩：弹窗出现时压暗整个界面，让弹窗与背景明显区分 -->
+    <Border x:Name="ModalMask"
+            Background="{StaticResource Brush.ModalMask}"
+            Opacity="0"
+            Visibility="Collapsed"
+            Panel.ZIndex="99"/>
+    </Grid>
 </Window>

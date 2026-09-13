@@ -20,8 +20,23 @@
         <Border Grid.Row="1" Style="{StaticResource Card}">
             <StackPanel>
                     <Grid Margin="0,0,0,8">
-                        <TextBlock Text="产品信息"
-                                   Style="{StaticResource CardTitle}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <!-- 产品 Logo：与程序图标同源（Assets/app-logo.png） -->
+                            <Image Width="40"
+                                   Height="40"
+                                   Source="/Assets/app-logo.png"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   Stretch="Uniform"
+                                   VerticalAlignment="Center"
+                                   SnapsToDevicePixels="True"/>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="产品信息"
+                                           Style="{StaticResource CardTitle}"/>
+                                <TextBlock Text="天融 SkyFusion · 离线全能格式转换工具"
+                                           Style="{StaticResource MetaText}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
                         <Button Content="GitHub 仓库 ↗"
                                 Style="{StaticResource Button.Ghost}"
                                 Foreground="{StaticResource Brush.Accent}"

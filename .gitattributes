@@ -1,0 +1,26 @@
+# 文本文件：仓库内统一存 LF，检出时按平台处理（Windows 下为 CRLF）
+* text=auto
+
+*.cs      text
+*.xaml    text
+*.csproj  text
+*.sln     text
+*.md      text
+*.txt     text
+*.json    text
+
+# Windows 脚本与安装脚本保持 CRLF
+*.ps1     text eol=crlf
+*.iss     text eol=crlf
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+
+# 二进制资源不做行尾转换
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.ico     binary
+*.exe     binary
+*.dll     binary
+*.pdb     binary
+*.zip     binary

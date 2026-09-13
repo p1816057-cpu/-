@@ -13,7 +13,7 @@ namespace AudioConverter.Modules.About
             _services = services;
             Title = "关于";
             FfmpegVersion = services.Ffmpeg.GetFfmpegVersion();
-            AppVersion = "Version 1.1.0";
+            AppVersion = "Version " + AudioConverter.Common.AppInfo.Version;
             SloganChinese = "天融万物，格式无界";
             SloganEnglish = "Fuse Anything, Convert Anything";
             CompatibilityText = AudioConverter.Common.WindowsCompatibility.CompatibilityText;
@@ -40,8 +40,11 @@ namespace AudioConverter.Modules.About
 
         private void OpenGitHub()
         {
+            string url = AudioConverter.Common.AppInfo.RepositoryUrl;
             Services.ToastService.Instance.Show(
-                "GitHub 仓库地址将在项目上架后填写。",
+                string.IsNullOrWhiteSpace(url)
+                    ? "GitHub 仓库地址将在项目上架后填写。"
+                    : "GitHub 仓库：" + url,
                 Services.ToastKind.Info);
         }
     }

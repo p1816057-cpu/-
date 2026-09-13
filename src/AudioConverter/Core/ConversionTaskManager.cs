@@ -61,6 +61,27 @@ namespace AudioConverter.Core
                     continue;
                 }
 
+                // 每个源文件可能来自不同文件夹，输出目录逐个创建（默认是源文件夹下的「转换输出」）
+                try
+                {
+                    string targetDirectory = Path.GetDirectoryName(resolution.OutputPath);
+                    if (!string.IsNullOrWhiteSpace(targetDirectory))
+                    {
+                        Directory.CreateDirectory(targetDirectory);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var dirFailed = CreateResult(task);
+                    dirFailed.Outcome = ConversionOutcome.Failed;
+                    dirFailed.OutputPath = resolution.OutputPath;
+                    dirFailed.ErrorCode = "OUTPUT_DIR_ERROR";
+                    dirFailed.ErrorMessage = "输出目录不可用：" + ex.Message;
+                    results.Add(dirFailed);
+                    Report(progress, i, task, ConversionUpdateKind.TaskFailed, 0, null, resolution.OutputPath, dirFailed.ErrorMessage);
+                    continue;
+                }
+
                 Report(progress, i, task, ConversionUpdateKind.TaskRunning, 0, null, resolution.OutputPath, null);
 
                 var stopwatch = Stopwatch.StartNew();

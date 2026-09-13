@@ -29,7 +29,7 @@ namespace AudioConverter.Shell
             TopItems = new ObservableCollection<NavigationItem>
             {
                 new NavigationItem(AppPage.Conversion, "音频转换", "Music"),
-                new NavigationItem(AppPage.ImageCompression, "图片压缩", "Image"),
+                new NavigationItem(AppPage.ImageCompression, "图片转换、压缩", "Image"),
                 new NavigationItem(AppPage.Office, "办公转换", "Office"),
                 new NavigationItem(AppPage.History, "历史", "History")
             };
@@ -131,6 +131,7 @@ namespace AudioConverter.Shell
             OnPropertyChanged(nameof(SelectedBottomItem));
 
             CurrentViewModel = page;
+            page.OnActivated();
         }
 
         /// <summary>
