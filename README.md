@@ -7,6 +7,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%207%20SP1%20%E2%86%92%2011-111827)](#系统要求)
 [![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-512bd4)](#系统要求)
 [![Offline](https://img.shields.io/badge/%E7%A6%BB%E7%BA%BF-100%25%20local-dc2626)](#技术栈与设计约束)
+[![Download](https://img.shields.io/badge/download-Releases-16a34a?logo=github)](https://github.com/p1816057-cpu/-/releases/latest)
 
 天融（SkyFusion）是一款 **完全离线的 Windows 桌面格式转换工具**：音频转换、图片转换与压缩，
 本地调用 FFmpeg 7.0，不联网、不注入、无后台服务，兼容 Windows 7 SP1 x64 到 Windows 11。
@@ -52,7 +53,11 @@
 
 ## 下载与使用
 
-便携版：下载 release 里的压缩包，解压后双击 `SkyFusion.exe` 即可，无需安装。
+**下载地址：<https://github.com/p1816057-cpu/-/releases/latest>**（也可以从仓库右侧的 Releases 进入）
+
+- **便携版**：下载 `SkyFusion-v1.2.1-Win10-11-portable.zip`，解压后双击 `SkyFusion.exe` 即可，无需安装；
+- **安装版**：下载 `SkyFusion-Setup-1.2.1.exe`，按向导安装，可在「应用和功能」里卸载。
+
 详细步骤见 [`docs/使用说明-便携版-Win10-11.txt`](docs/使用说明-便携版-Win10-11.txt)。
 
 ## 系统要求
